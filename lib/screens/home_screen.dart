@@ -143,6 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Row(
             children: [
               Expanded(
+                flex: 2,
                 child: FilledButton.icon(
                   onPressed: () async {
                     await Navigator.push(
@@ -153,21 +154,25 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                     _loadData();
                   },
-                  icon: const Icon(Icons.add, size: 18),
-                  label: const Text('开始训练'),
+                  icon: const Icon(Icons.add, size: 20),
+                  label: const Text(
+                    '开始训练',
+                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+                  ),
                   style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 16),
                     backgroundColor: const Color(0xFFE8E4E1),
                     foregroundColor: const Color(0xFF0A0A0A),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
+                    elevation: 0,
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: FilledButton.icon(
+                child: OutlinedButton.icon(
                   onPressed: () async {
                     await Navigator.push(
                       context,
@@ -178,13 +183,13 @@ class _HomeScreenState extends State<HomeScreen> {
                     _loadData();
                   },
                   icon: const Icon(Icons.folder_outlined, size: 18),
-                  label: const Text('训练模板'),
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    backgroundColor: const Color(0xFFE8E4E1),
-                    foregroundColor: const Color(0xFF0A0A0A),
+                  label: const Text('模板'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    foregroundColor: const Color(0xFF8B8680),
+                    side: const BorderSide(color: Color(0xFF2A2A2A)),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
@@ -280,21 +285,45 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Icon(
               Icons.fitness_center_outlined,
-              size: 48,
-              color: theme.colorScheme.onSurfaceVariant,
+              size: 64,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               '还没有历史记录',
-              style: theme.textTheme.bodyMedium?.copyWith(
+              style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 8),
             Text(
-              '开始你的第一次训练吧',
+              '点击下方的"开始训练"按钮\n记录你的第一次健身',
+              textAlign: TextAlign.center,
               style: theme.textTheme.bodySmall?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () async {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WorkoutScreen(),
+                  ),
+                );
+                _loadData();
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('开始第一次训练'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             ),
           ],
@@ -323,11 +352,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     Row(
                       children: [
                         Container(
-                          width: 8,
-                          height: 8,
+                          width: 12,
+                          height: 12,
                           decoration: BoxDecoration(
-                            color: tagColor,
+                            color: tagColor.withOpacity(0.2),
                             shape: BoxShape.circle,
+                            border: Border.all(color: tagColor, width: 2),
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -369,14 +399,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   Wrap(
                     spacing: 8,
                     runSpacing: 4,
-                    children: record.exerciseSets.take(4).map((set) {
-                      return Text(
-                        '${set.exerciseName} ${set.weight}kg×${set.reps}',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                    children: [
+                      ...record.exerciseSets.take(4).map((set) {
+                        return Text(
+                          '${set.exerciseName} ${set.weight}kg×${set.reps}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                        );
+                      }),
+                      if (record.exerciseSets.length > 4)
+                        Text(
+                          '+${record.exerciseSets.length - 4}',
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            color: theme.colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      );
-                    }).toList(),
+                    ],
                   ),
                 ],
               ],
@@ -405,12 +445,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Color _getTagColor(String tag) {
     final colors = {
-      'chest': const Color(0xFFE8E4E1),
-      'back': const Color(0xFF8B8680),
-      'legs': const Color(0xFF6B6560),
-      'shoulders': const Color(0xFFA39E98),
-      'arms': const Color(0xFF4A4540),
-      'core': const Color(0xFF2A2520),
+      'chest': const Color(0xFFFF8A65),    // 温暖的橙红色
+      'back': const Color(0xFF4FC3F7),     // 清新的蓝色
+      'legs': const Color(0xFF81C784),     // 健康的绿色
+      'shoulders': const Color(0xFFFFB74D), // 活力的橙色
+      'arms': const Color(0xFF9575CD),      // 稳重的紫色
+      'core': const Color(0xFF4DB6AC),      // 平静的青绿色
     };
     return colors[tag] ?? const Color(0xFF8B8680);
   }

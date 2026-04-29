@@ -48,12 +48,6 @@ class _StatsScreenState extends State<StatsScreen> {
         hasRecordData[key] = true;
       }
     }
-    // 如果有记录但时长为0，显示为1分钟（避免图表为空）
-    for (var key in durationData.keys) {
-      if (hasRecordData[key] == true && durationData[key] == 0) {
-        durationData[key] = 1;
-      }
-    }
     return durationData.entries.toList();
   }
 
@@ -244,12 +238,12 @@ class _StatsScreenState extends State<StatsScreen> {
     }
 
     final colors = {
-      'chest': const Color(0xFFE8E4E1),
-      'back': const Color(0xFF8B8680),
-      'legs': const Color(0xFF6B6560),
-      'shoulders': const Color(0xFFA39E98),
-      'arms': const Color(0xFF4A4540),
-      'core': const Color(0xFF2A2520),
+      'chest': const Color(0xFFFF8A65),
+      'back': const Color(0xFF4FC3F7),
+      'legs': const Color(0xFF81C784),
+      'shoulders': const Color(0xFFFFB74D),
+      'arms': const Color(0xFF9575CD),
+      'core': const Color(0xFF4DB6AC),
     };
 
     final total = data.values.reduce((a, b) => a + b);
@@ -260,7 +254,7 @@ class _StatsScreenState extends State<StatsScreen> {
         child: Column(
           children: [
             SizedBox(
-              height: 180,
+              height: 200,
               child: PieChart(
                 PieChartData(
                   sectionsSpace: 2,
@@ -322,9 +316,9 @@ class _StatsScreenState extends State<StatsScreen> {
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: SizedBox(
-          height: 180,
-          child: LineChart(
+          child: SizedBox(
+            height: 200,
+            child: LineChart(
             LineChartData(
               gridData: FlGridData(
                 show: true,
@@ -376,7 +370,7 @@ class _StatsScreenState extends State<StatsScreen> {
               borderData: FlBorderData(show: false),
               minX: 0,
               maxX: (data.length - 1).toDouble(),
-              minY: 0,
+              minY: 1,
               maxY: 10,
               lineBarsData: [
                 LineChartBarData(

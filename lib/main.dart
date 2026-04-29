@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'screens/home_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/exercise_library_screen.dart';
-import 'screens/plan_screen.dart';
+
 import 'screens/profile_screen.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
@@ -212,9 +212,8 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
 
   final List<Widget> _screens = [
     const HomeScreen(),
-    const StatsScreen(),
     const ExerciseLibraryScreen(),
-    const PlanScreen(),
+    const StatsScreen(),
     const ProfileScreen(),
   ];
 
@@ -248,19 +247,14 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
               label: '首页',
             ),
             NavigationDestination(
-              icon: Icon(Icons.bar_chart_outlined, size: 24),
-              selectedIcon: Icon(Icons.bar_chart, size: 24),
-              label: '统计',
-            ),
-            NavigationDestination(
-              icon: Icon(Icons.sports_gymnastics_outlined, size: 24),
-              selectedIcon: Icon(Icons.sports_gymnastics, size: 24),
+              icon: Icon(Icons.fitness_center_outlined, size: 24),
+              selectedIcon: Icon(Icons.fitness_center, size: 24),
               label: '动作库',
             ),
             NavigationDestination(
-              icon: Icon(Icons.calendar_today_outlined, size: 24),
-              selectedIcon: Icon(Icons.calendar_today, size: 24),
-              label: '周期',
+              icon: Icon(Icons.bar_chart_outlined, size: 24),
+              selectedIcon: Icon(Icons.bar_chart, size: 24),
+              label: '统计',
             ),
             NavigationDestination(
               icon: Icon(Icons.person_outline, size: 24),

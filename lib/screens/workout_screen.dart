@@ -373,6 +373,36 @@ class _WorkoutScreenState extends State<WorkoutScreen>
     );
   }
 
+  void _confirmDeleteSet(int index) {
+    final set = _sets[index];
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('删除记录'),
+        content: Text('确定要删除 "${set.exerciseName}" 的第${set.setNumber}组记录吗？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(context);
+              setState(() {
+                _sets.removeAt(index);
+              });
+              _persistWorkoutState();
+            },
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
+    );
+  }
+
   // 顶部区域：计时器 + 训练部位
   Widget _buildHeaderSection(int minutes, int seconds, ThemeData theme) {
     return Container(
@@ -430,13 +460,13 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       child: !_isTimerRunning
           ? Container(
               key: const ValueKey('startButton'),
-              height: MediaQuery.of(context).size.height * 0.45,
+              height: MediaQuery.of(context).size.height * 0.30,
               alignment: Alignment.center,
               child: _buildStartButton(theme),
             )
           : Container(
               key: const ValueKey('timerDisplay'),
-              height: MediaQuery.of(context).size.height * 0.45,
+              height: MediaQuery.of(context).size.height * 0.30,
               alignment: Alignment.center,
               child: _buildTimerDisplay(minutes, seconds, theme),
             ),
@@ -662,11 +692,13 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               children: tags.map((tag) {
                 final isSelected = _selectedBodyPart == tag;
                 return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _selectedBodyPart = isSelected ? null : tag;
-                    });
-                  },
+                  onTap: _isTimerRunning
+                      ? null
+                      : () {
+                          setState(() {
+                            _selectedBodyPart = isSelected ? null : tag;
+                          });
+                        },
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 200),
                     width: itemWidth,
@@ -676,7 +708,9 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                     decoration: BoxDecoration(
                       color: isSelected
                           ? theme.colorScheme.primary
-                          : theme.colorScheme.surfaceVariant,
+                          : _isTimerRunning
+                              ? theme.colorScheme.surfaceVariant.withOpacity(0.5)
+                              : theme.colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: isSelected
@@ -700,7 +734,9 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                       style: theme.textTheme.labelMedium?.copyWith(
                         color: isSelected
                             ? theme.colorScheme.onPrimary
-                            : theme.colorScheme.onSurface,
+                            : _isTimerRunning
+                                ? theme.colorScheme.onSurface.withOpacity(0.4)
+                                : theme.colorScheme.onSurface,
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
@@ -851,17 +887,20 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                         ),
                       ),
                       // 删除按钮
-                      IconButton(
-                        icon: Icon(
-                          Icons.delete_outline,
-                          size: 20,
-                          color: theme.colorScheme.error.withOpacity(0.7),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          onTap: () => _confirmDeleteSet(index),
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
+                            child: Icon(
+                              Icons.delete_outline,
+                              size: 22,
+                              color: theme.colorScheme.error.withOpacity(0.6),
+                            ),
+                          ),
                         ),
-                        onPressed: () {
-                          setState(() {
-                            _sets.removeAt(index);
-                          });
-                        },
                       ),
                     ],
                   ),
@@ -954,13 +993,14 @@ class _WorkoutScreenState extends State<WorkoutScreen>
             activeTrackColor: theme.colorScheme.primary,
             inactiveTrackColor: theme.colorScheme.surfaceVariant,
             thumbColor: theme.colorScheme.primary,
-            overlayColor: theme.colorScheme.primary.withOpacity(0.1),
-            trackHeight: 4,
+            overlayColor: theme.colorScheme.primary.withOpacity(0.15),
+            trackHeight: 6,
             thumbShape: const RoundSliderThumbShape(
-              enabledThumbRadius: 8,
+              enabledThumbRadius: 14,
+              elevation: 4,
             ),
             overlayShape: const RoundSliderOverlayShape(
-              overlayRadius: 16,
+              overlayRadius: 24,
             ),
           ),
           child: Slider(

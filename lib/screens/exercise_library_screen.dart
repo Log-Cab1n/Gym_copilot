@@ -95,18 +95,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
+                  border: Border.all(
+                    color: theme.colorScheme.outline.withOpacity(0.5),
+                    width: 1,
+                  ),
                 ),
                 child: TextField(
                   controller: _searchController,
@@ -162,7 +154,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               onRefresh: _loadExercises,
               color: theme.colorScheme.primary,
               backgroundColor: theme.colorScheme.surface,
-              child: ListView.builder(
+              child: _filteredExercises.isEmpty
+                  ? _buildEmptyState(theme)
+                  : ListView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: _filteredExercises.length,
                 itemBuilder: (context, index) {
@@ -172,11 +166,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   final lastUsedDate = stats?['lastUsedDate'] as String?;
 
                   return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shadowColor: Colors.black.withOpacity(0.2),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: theme.colorScheme.outline.withOpacity(0.3),
+                        width: 1,
+                      ),
                     ),
                     child: InkWell(
                       onTap: () =>
@@ -191,15 +188,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                               width: 48,
                               height: 48,
                               decoration: BoxDecoration(
-                                color: theme.colorScheme.surfaceVariant,
+                                color: _getTagColor(exercise.tag).withOpacity(0.15),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Center(
-                                child: Text(
-                                  _getTagAbbreviation(exercise.tag),
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                child: Icon(
+                                  _getTagIcon(exercise.tag),
+                                  color: _getTagColor(exercise.tag),
+                                  size: 24,
                                 ),
                               ),
                             ),
@@ -300,16 +296,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                                 ],
                               ],
                             ),
-                            if (!exercise.isBuiltIn) ...[
-                              const SizedBox(width: 4),
-                              IconButton(
-                                icon: Icon(
-                                  Icons.delete_outline,
-                                  color: theme.colorScheme.error,
-                                ),
-                                onPressed: () => _deleteExercise(exercise),
-                              ),
-                            ],
+                            // 删除按钮已移至详情页
                           ],
                         ),
                       ),
@@ -385,16 +372,28 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  String _getTagAbbreviation(String tag) {
-    final names = {
-      'chest': '胸',
-      'back': '背',
-      'legs': '腿',
-      'shoulders': '肩',
-      'arms': '臂',
-      'core': '核',
+  IconData _getTagIcon(String tag) {
+    final icons = {
+      'chest': Icons.fitness_center,
+      'back': Icons.arrow_back,
+      'legs': Icons.directions_walk,
+      'shoulders': Icons.accessibility,
+      'arms': Icons.pan_tool,
+      'core': Icons.circle,
     };
-    return names[tag] ?? tag.substring(0, 1).toUpperCase();
+    return icons[tag] ?? Icons.fitness_center;
+  }
+
+  Color _getTagColor(String tag) {
+    final colors = {
+      'chest': const Color(0xFFFF8A65),
+      'back': const Color(0xFF4FC3F7),
+      'legs': const Color(0xFF81C784),
+      'shoulders': const Color(0xFFFFB74D),
+      'arms': const Color(0xFF9575CD),
+      'core': const Color(0xFF4DB6AC),
+    };
+    return colors[tag] ?? const Color(0xFF8B8680);
   }
 
   void _showExerciseDetail(
@@ -432,15 +431,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceVariant,
+                      color: _getTagColor(exercise.tag).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
-                      child: Text(
-                        _getTagAbbreviation(exercise.tag),
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Icon(
+                        _getTagIcon(exercise.tag),
+                        color: _getTagColor(exercise.tag),
+                        size: 24,
                       ),
                     ),
                   ),
@@ -512,6 +510,30 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   label: const Text('查看历史记录'),
                 ),
               ),
+              if (!exercise.isBuiltIn) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _deleteExercise(exercise);
+                    },
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: theme.colorScheme.error,
+                    ),
+                    label: Text(
+                      '删除动作',
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(color: theme.colorScheme.error.withOpacity(0.3)),
+                    ),
+                  ),
+                ),
+              ],
               const SizedBox(height: 32),
             ],
           ),
@@ -562,15 +584,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.surfaceVariant,
+                      color: _getTagColor(exercise.tag).withOpacity(0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Center(
-                      child: Text(
-                        _getTagAbbreviation(exercise.tag),
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                      child: Icon(
+                        _getTagIcon(exercise.tag),
+                        color: _getTagColor(exercise.tag),
+                        size: 24,
                       ),
                     ),
                   ),
@@ -847,6 +868,52 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       _customTargetController.clear();
       _loadExercises();
     }
+  }
+
+  Widget _buildEmptyState(ThemeData theme) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.search_off,
+              size: 48,
+              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '没有找到匹配的动作',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '试试其他关键词或清除筛选条件',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_selectedTag != null || _searchController.text.isNotEmpty)
+              TextButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _selectedTag = null;
+                    _searchController.clear();
+                    _filterExercises();
+                  });
+                },
+                icon: const Icon(Icons.clear, size: 18),
+                label: const Text('清除筛选'),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
