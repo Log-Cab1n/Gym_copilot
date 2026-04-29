@@ -241,17 +241,26 @@ class DatabaseHelper {
       _webRecords.insert(0, record);
       return record.id!;
     }
-    final db = await database;
-    return await db.transaction((txn) async {
-      final recordId = await txn.insert('workout_records', record.toMap());
-      for (var set in record.exerciseSets) {
-        set.recordId = recordId;
-        await txn.insert('exercise_sets', set.toMap());
-        await _updateExerciseUsage(
-            txn, set.exerciseId, set.exerciseName, record.dateTime);
-      }
-      return recordId;
-    });
+    try {
+      final db = await database;
+      return await db.transaction((txn) async {
+        debugPrint('插入训练记录: ${record.toMap()}');
+        final recordId = await txn.insert('workout_records', record.toMap());
+        debugPrint('训练记录插入成功，ID=$recordId');
+        for (var set in record.exerciseSets) {
+          set.recordId = recordId;
+          debugPrint('插入动作组: ${set.toMap()}');
+          await txn.insert('exercise_sets', set.toMap());
+          await _updateExerciseUsage(
+              txn, set.exerciseId, set.exerciseName, record.dateTime);
+        }
+        return recordId;
+      });
+    } catch (e, stackTrace) {
+      debugPrint('保存训练记录失败: $e');
+      debugPrint('堆栈跟踪: $stackTrace');
+      rethrow;
+    }
   }
 
   Future<void> _updateExerciseUsage(DatabaseExecutor dbOrTxn, int exerciseId,
@@ -313,18 +322,33 @@ class DatabaseHelper {
     if (kIsWeb) {
       return _webRecords;
     }
-    final db = await database;
-    final result = await db.query(
-      'workout_records',
-      orderBy: 'dateTime DESC',
-    );
-    List<WorkoutRecord> records = [];
-    for (var map in result) {
-      final record = WorkoutRecord.fromMap(map);
-      record.exerciseSets = await getExerciseSetsByRecordId(record.id!);
-      records.add(record);
+    try {
+      final db = await database;
+      final result = await db.query(
+        'workout_records',
+        orderBy: 'dateTime DESC',
+      );
+      debugPrint('查询到 ${result.length} 条训练记录');
+      List<WorkoutRecord> records = [];
+      for (var map in result) {
+        try {
+          final record = WorkoutRecord.fromMap(map);
+          debugPrint('处理记录 ID=${record.id}, 时间=${record.dateTime}, 部位=${record.bodyPart}');
+          if (record.id != null) {
+            record.exerciseSets = await getExerciseSetsByRecordId(record.id!);
+            debugPrint('记录 ID=${record.id} 有 ${record.exerciseSets.length} 个动作组');
+          }
+          records.add(record);
+        } catch (e) {
+          debugPrint('处理单条记录时出错: $e');
+        }
+      }
+      return records;
+    } catch (e, stackTrace) {
+      debugPrint('查询训练记录失败: $e');
+      debugPrint('堆栈跟踪: $stackTrace');
+      rethrow;
     }
-    return records;
   }
 
   Future<List<ExerciseSet>> getExerciseSetsByRecordId(int recordId) async {

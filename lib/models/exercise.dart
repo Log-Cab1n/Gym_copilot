@@ -56,8 +56,7 @@ class ExerciseSet {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = <String, dynamic>{
       'recordId': recordId,
       'exerciseId': exerciseId,
       'exerciseName': exerciseName,
@@ -66,6 +65,10 @@ class ExerciseSet {
       'reps': reps,
       'setNumber': setNumber,
     };
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 
   factory ExerciseSet.fromMap(Map<String, dynamic> map) {

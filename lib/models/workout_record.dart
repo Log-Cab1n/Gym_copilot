@@ -18,13 +18,16 @@ class WorkoutRecord {
   });
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
+    final map = <String, dynamic>{
       'dateTime': dateTime.toIso8601String(),
       'bodyPart': bodyPart,
       'durationMinutes': durationMinutes,
       'fatigueLevel': fatigueLevel,
     };
+    if (id != null) {
+      map['id'] = id;
+    }
+    return map;
   }
 
   factory WorkoutRecord.fromMap(Map<String, dynamic> map) {

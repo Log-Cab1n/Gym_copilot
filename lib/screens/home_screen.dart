@@ -14,17 +14,37 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   List<WorkoutRecord> _records = [];
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadData();
+    }
+  }
+
   Future<void> _loadData() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+    
     try {
       final records = await DatabaseHelper.instance.getWorkoutRecords();
       if (mounted) {
@@ -33,14 +53,15 @@ class _HomeScreenState extends State<HomeScreen> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
       debugPrint('加载数据失败: $e');
+      debugPrint('堆栈跟踪: $stackTrace');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('加载数据失败，请重试')),
+          SnackBar(content: Text('加载数据失败: $e')),
         );
       }
     }
