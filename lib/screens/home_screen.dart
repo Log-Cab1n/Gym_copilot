@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
+import '../main.dart';
 import '../models/workout_record.dart';
 import '../data/exercise_data.dart';
 import 'workout_screen.dart';
@@ -11,10 +12,11 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
+class HomeScreenState extends State<HomeScreen>
+    with WidgetsBindingObserver, RouteAware {
   List<WorkoutRecord> _records = [];
   bool _isLoading = true;
 
@@ -22,29 +24,42 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadData();
+    loadData();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context) as PageRoute);
   }
 
   @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   @override
+  void didPopNext() {
+    // 从其他页面返回时刷新数据
+    loadData();
+  }
+
+  @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _loadData();
+      loadData();
     }
   }
 
-  Future<void> _loadData() async {
+  Future<void> loadData() async {
     if (!mounted) return;
-    
+
     setState(() {
       _isLoading = true;
     });
-    
+
     try {
       final records = await DatabaseHelper.instance.getWorkoutRecords();
       if (mounted) {
@@ -110,7 +125,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         child: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : RefreshIndicator(
-                onRefresh: _loadData,
+                onRefresh: loadData,
                 color: theme.colorScheme.primary,
                 backgroundColor: theme.colorScheme.surface,
                 child: CustomScrollView(
@@ -173,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         builder: (context) => const WorkoutScreen(),
                       ),
                     );
-                    _loadData();
+                    loadData();
                   },
                   icon: const Icon(Icons.add, size: 20),
                   label: const Text(
@@ -201,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                         builder: (context) => const WorkoutTemplatesScreen(),
                       ),
                     );
-                    _loadData();
+                    loadData();
                   },
                   icon: const Icon(Icons.folder_outlined, size: 18),
                   label: const Text('模板'),
@@ -334,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
                     builder: (context) => const WorkoutScreen(),
                   ),
                 );
-                _loadData();
+                loadData();
               },
               icon: const Icon(Icons.add, size: 18),
               label: const Text('开始第一次训练'),

@@ -4,10 +4,12 @@ import 'package:flutter/foundation.dart';
 import 'screens/home_screen.dart';
 import 'screens/stats_screen.dart';
 import 'screens/exercise_library_screen.dart';
-
 import 'screens/profile_screen.dart';
 import 'services/notification_service.dart';
 import 'services/update_service.dart';
+
+// 全局路由观察者
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -195,6 +197,7 @@ class GymCopilotApp extends StatelessWidget {
           elevation: 0,
         ),
       ),
+      navigatorObservers: [routeObserver],
       home: const MainNavigationScreen(),
     );
   }
@@ -209,20 +212,20 @@ class MainNavigationScreen extends StatefulWidget {
 
 class _MainNavigationScreenState extends State<MainNavigationScreen> {
   int _currentIndex = 0;
-
-  final List<Widget> _screens = [
-    const HomeScreen(),
-    const ExerciseLibraryScreen(),
-    const StatsScreen(),
-    const ProfileScreen(),
-  ];
+  
+  final GlobalKey<HomeScreenState> _homeKey = GlobalKey<HomeScreenState>();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
-        children: _screens,
+        children: [
+          HomeScreen(key: _homeKey),
+          const ExerciseLibraryScreen(),
+          const StatsScreen(),
+          const ProfileScreen(),
+        ],
       ),
       bottomNavigationBar: Container(
         decoration: const BoxDecoration(
@@ -236,6 +239,10 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
             setState(() {
               _currentIndex = index;
             });
+            // 切换到首页时刷新数据
+            if (index == 0) {
+              _homeKey.currentState?.loadData();
+            }
           },
           backgroundColor: const Color(0xFF0A0A0A),
           indicatorColor: const Color(0xFF2A2A2A),
