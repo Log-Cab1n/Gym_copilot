@@ -12,6 +12,7 @@ on:
           - release
           - patch
           - list-releases
+          - delete-release
       platform:
         description: 'Platform'
         required: true
@@ -51,9 +52,17 @@ jobs:
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
+      - name: Delete Release
+        if: ${{ inputs.command == 'delete-release' }}
+        run: |
+          echo "Deleting release ${{ inputs.release_version }}..."
+          shorebird releases delete --version ${{ inputs.release_version }} --platform ${{ inputs.platform }} || echo "Release not found or already deleted"
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
       - name: Shorebird Release
         if: ${{ inputs.command == 'release' }}
-        run: shorebird release ${{ inputs.platform }} --artifact ${{ inputs.artifact }}
+        run: shorebird release ${{ inputs.platform }} --artifact ${{ inputs.artifact }} -- --no-tree-shake-icons
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
