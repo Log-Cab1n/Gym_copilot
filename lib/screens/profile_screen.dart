@@ -7,6 +7,7 @@ import '../models/workout_record.dart';
 import '../data/exercise_data.dart';
 import '../services/update_service.dart';
 import 'personal_data_screen.dart';
+import 'diagnosis_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -300,6 +301,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
               title: '删除所有记录',
               subtitle: '清除所有训练数据、计划、模板及身体数据',
               onTap: _deleteAllRecords,
+              theme: theme,
+            ),
+            const Divider(height: 1, indent: 56),
+            _buildSettingItem(
+              icon: Icons.bug_report,
+              title: '数据库诊断',
+              subtitle: '查看数据库状态和原始数据',
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DiagnosisScreen(),
+                  ),
+                );
+              },
               theme: theme,
             ),
             const Divider(height: 1, indent: 56),

@@ -1283,7 +1283,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (mounted) {
-        Navigator.of(context).pop();
+        Navigator.of(context).pop(true);
       }
     } catch (e) {
       if (mounted) {
