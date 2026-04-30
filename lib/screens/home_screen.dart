@@ -102,20 +102,6 @@ class HomeScreenState extends State<HomeScreen>
         .fold(0, (sum, r) => sum + r.durationMinutes);
   }
 
-  List<WorkoutRecord> get _todayRecords {
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    return _records
-        .where((r) => DateFormat('yyyy-MM-dd').format(r.dateTime) == today)
-        .toList();
-  }
-
-  List<WorkoutRecord> get _pastRecords {
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    return _records
-        .where((r) => DateFormat('yyyy-MM-dd').format(r.dateTime) != today)
-        .toList();
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
