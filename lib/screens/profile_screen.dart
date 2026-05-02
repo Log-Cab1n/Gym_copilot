@@ -19,6 +19,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<WorkoutRecord> _records = [];
   bool _isLoading = true;
+  String _appVersion = '1.0.0';
 
   static const Color _bgColor = Color(0xFF0B0F19);
   static const Color _surfaceColor = Color(0xFF1A1F2E);
@@ -32,6 +33,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _loadData();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final version = await UpdateService.instance.currentVersion;
+    if (mounted) {
+      setState(() {
+        _appVersion = version;
+      });
+    }
   }
 
   Future<void> _loadData() async {
@@ -349,12 +360,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             _buildSettingItem(
               icon: Icons.info_outline,
               title: '关于',
-              subtitle: 'Gym Copilot v1.0.0',
+              subtitle: 'Gym Copilot v$_appVersion',
               onTap: () {
                 showAboutDialog(
                   context: context,
                   applicationName: 'Gym Copilot',
-                  applicationVersion: '1.0.0',
+                  applicationVersion: _appVersion,
                   applicationIcon: const Icon(
                     Icons.fitness_center,
                     color: _primaryColor,

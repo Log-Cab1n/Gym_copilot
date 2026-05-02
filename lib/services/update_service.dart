@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 enum UpdateStatus {
   checking,
@@ -39,6 +40,15 @@ class UpdateService {
   Future<int?> get currentPatchVersion async {
     if (!isSupported) return null;
     return null;
+  }
+
+  Future<String> get currentVersion async {
+    final packageInfo = await PackageInfo.fromPlatform();
+    final patchVersion = await currentPatchVersion;
+    if (patchVersion != null && patchVersion > 0) {
+      return '${packageInfo.version}+$patchVersion';
+    }
+    return '${packageInfo.version}+${packageInfo.buildNumber}';
   }
 
   Future<int?> get nextPatchVersion async {
