@@ -75,11 +75,12 @@ jobs:
 
       - name: Shorebird Patch
         if: ${{ inputs.command == 'patch' }}
-        run: |
-          if [ "${{ inputs.release_version }}" = "latest" ]; then
-            shorebird patch ${{ inputs.platform }} -- --no-tree-shake-icons
-          else
-            shorebird patch ${{ inputs.platform }} --release-version=${{ inputs.release_version }} -- --no-tree-shake-icons
-          fi
         env:
           SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+        run: |
+          ARGS=""
+          if [ "${{ inputs.release_version }}" != "latest" ]; then
+            ARGS="--release-version=${{ inputs.release_version }}"
+          fi
+          echo "Running: shorebird patch ${{ inputs.platform }} $ARGS"
+          shorebird patch ${{ inputs.platform }} $ARGS

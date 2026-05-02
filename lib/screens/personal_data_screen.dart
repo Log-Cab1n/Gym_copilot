@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 import 'package:intl/intl.dart';
 
 import '../database/database_helper.dart';
@@ -28,7 +29,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
     });
   }
 
-  Map<String, dynamic>? get _latestData => _bodyData.isEmpty ? null : _bodyData.first;
+  Map<String, dynamic>? get _latestData =>
+      _bodyData.isEmpty ? null : _bodyData.first;
 
   @override
   Widget build(BuildContext context) {
@@ -58,9 +60,8 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                         children: [
                           Text(
                             '历史记录',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w600,
-                            ),
+                            style: TextStyle(
+                                fontSize: 22, fontWeight: FontWeight.w600),
                           ),
                           TextButton.icon(
                             onPressed: _showAddDialog,
@@ -75,25 +76,28 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                       ? SliverFillRemaining(
                           hasScrollBody: false,
                           child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(40),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.monitor_weight_outlined,
-                                    size: 72,
-                                    color: theme.colorScheme.onSurfaceVariant
-                                        .withOpacity(0.5),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Text(
-                                    '暂无身体数据',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                            child: FadeInUp(
+                              child: Padding(
+                                padding: const EdgeInsets.all(40),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.monitor_weight_outlined,
+                                      size: 72,
+                                      color: theme.colorScheme.onSurfaceVariant
+                                          .withOpacity(0.5),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 20),
+                                    Text(
+                                      '暂无身体数据',
+                                      style: TextStyle(
+                                          fontSize: 14,
+                                          color: theme
+                                              .colorScheme.onSurfaceVariant),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -101,7 +105,10 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                       : SliverList.builder(
                           itemCount: _bodyData.length,
                           itemBuilder: (context, index) {
-                            return _buildHistoryItem(_bodyData[index], theme);
+                            return FadeInUp(
+                              delay: Duration(milliseconds: index * 50),
+                              child: _buildHistoryItem(_bodyData[index], theme),
+                            );
                           },
                         ),
                   const SliverToBoxAdapter(
@@ -116,77 +123,78 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
   Widget _buildLatestCard(ThemeData theme) {
     final data = _latestData;
 
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '最新数据',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (data != null)
-                    Text(
-                      data['recordDate'] as String,
-                      style: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              if (data == null)
-                Center(
-                  child: Text(
-                    '点击右上角记录第一条数据',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                )
-              else
+    return FadeInUp(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Card(
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
                 Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _buildDataItem(
-                      '体重',
-                      data['weight']?.toString() ?? '-',
-                      'kg',
-                      Icons.monitor_weight_outlined,
-                      theme,
+                    Text(
+                      '最新数据',
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
-                    _buildDataItem(
-                      '身高',
-                      data['height']?.toString() ?? '-',
-                      'cm',
-                      Icons.height_outlined,
-                      theme,
-                    ),
-                    _buildDataItem(
-                      '体脂',
-                      data['bodyFat']?.toString() ?? '-',
-                      '%',
-                      Icons.percent_outlined,
-                      theme,
-                    ),
-                    _buildDataItem(
-                      '肌肉',
-                      data['muscleMass']?.toString() ?? '-',
-                      'kg',
-                      Icons.fitness_center_outlined,
-                      theme,
-                    ),
+                    if (data != null)
+                      Text(
+                        data['recordDate'] as String,
+                        style: TextStyle(
+                            fontSize: 11,
+                            color: theme.colorScheme.onSurfaceVariant),
+                      ),
                   ],
                 ),
-            ],
+                const SizedBox(height: 24),
+                if (data == null)
+                  Center(
+                    child: Text(
+                      '点击右上角记录第一条数据',
+                      style: TextStyle(
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurfaceVariant),
+                    ),
+                  )
+                else
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      _buildDataItem(
+                        '体重',
+                        data['weight']?.toString() ?? '-',
+                        'kg',
+                        Icons.monitor_weight_outlined,
+                        theme,
+                      ),
+                      _buildDataItem(
+                        '身高',
+                        data['height']?.toString() ?? '-',
+                        'cm',
+                        Icons.height_outlined,
+                        theme,
+                      ),
+                      _buildDataItem(
+                        '体脂',
+                        data['bodyFat']?.toString() ?? '-',
+                        '%',
+                        Icons.percent_outlined,
+                        theme,
+                      ),
+                      _buildDataItem(
+                        '肌肉',
+                        data['muscleMass']?.toString() ?? '-',
+                        'kg',
+                        Icons.fitness_center_outlined,
+                        theme,
+                      ),
+                    ],
+                  ),
+              ],
+            ),
           ),
         ),
       ),
@@ -217,25 +225,22 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
             children: [
               Text(
                 value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.w600),
               ),
               const SizedBox(width: 2),
               Text(
                 unit,
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: TextStyle(
+                    fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+            style: TextStyle(
+                fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
       ),
@@ -255,7 +260,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           title: Text(
             date,
-            style: theme.textTheme.titleSmall,
+            style: TextStyle(fontSize: 14),
           ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -290,11 +295,11 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceVariant,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         text,
-        style: theme.textTheme.labelSmall,
+        style: TextStyle(fontSize: 11),
       ),
     );
   }
@@ -323,7 +328,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
           ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -342,7 +347,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
               const SizedBox(height: 20),
               Text(
                 '记录身体数据',
-                style: theme.textTheme.titleLarge,
+                style: TextStyle(fontSize: 22),
               ),
               const SizedBox(height: 24),
               _buildInputField('日期', dateController, theme, readOnly: true,
@@ -364,22 +369,19 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
                   },
                 );
                 if (picked != null) {
-                  dateController.text =
-                      DateFormat('yyyy-MM-dd').format(picked);
+                  dateController.text = DateFormat('yyyy-MM-dd').format(picked);
                 }
               }),
               const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
-                    child: _buildInputField(
-                        '体重 (kg)', weightController, theme,
+                    child: _buildInputField('体重 (kg)', weightController, theme,
                         keyboardType: TextInputType.number),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _buildInputField(
-                        '身高 (cm)', heightController, theme,
+                    child: _buildInputField('身高 (cm)', heightController, theme,
                         keyboardType: TextInputType.number),
                   ),
                 ],
@@ -388,8 +390,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
               Row(
                 children: [
                   Expanded(
-                    child: _buildInputField(
-                        '体脂 (%)', bodyFatController, theme,
+                    child: _buildInputField('体脂 (%)', bodyFatController, theme,
                         keyboardType: TextInputType.number),
                   ),
                   const SizedBox(width: 12),
@@ -403,7 +404,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
               const SizedBox(height: 24),
               SizedBox(
                 width: double.infinity,
-                child: FilledButton(
+                child: ElevatedButton(
                   onPressed: () => _saveBodyData(
                     weightController.text,
                     heightController.text,
@@ -433,19 +434,18 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: theme.colorScheme.surfaceVariant,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: TextField(
         controller: controller,
         keyboardType: keyboardType,
         readOnly: readOnly,
         onTap: onTap,
-        style: theme.textTheme.bodyMedium,
+        style: TextStyle(fontSize: 14),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: theme.textTheme.bodySmall?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          labelStyle: TextStyle(
+              fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(vertical: 14),
         ),
@@ -505,7 +505,7 @@ class _PersonalDataScreenState extends State<PersonalDataScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('取消'),
           ),
-          FilledButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('删除'),
           ),

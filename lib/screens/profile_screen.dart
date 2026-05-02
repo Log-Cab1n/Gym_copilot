@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../database/database_helper.dart';
 import '../models/workout_record.dart';
@@ -18,6 +19,14 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   List<WorkoutRecord> _records = [];
   bool _isLoading = true;
+
+  static const Color _bgColor = Color(0xFF0B0F19);
+  static const Color _surfaceColor = Color(0xFF1A1F2E);
+  static const Color _surfaceVariant = Color(0xFF242B3D);
+  static const Color _primaryColor = Color(0xFFF97316);
+  static const Color _foregroundColor = Color(0xFFF8FAFC);
+  static const Color _mutedColor = Color(0xFF64748B);
+  static const Color _borderColor = Color(0xFF2D3748);
 
   @override
   void initState() {
@@ -63,38 +72,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: _bgColor,
       body: SafeArea(
         child: _isLoading
-            ? const Center(child: CircularProgressIndicator())
+            ? const Center(
+                child: CircularProgressIndicator(color: _primaryColor))
             : RefreshIndicator(
                 onRefresh: _loadData,
-                color: theme.colorScheme.primary,
-                backgroundColor: theme.colorScheme.surface,
+                color: _primaryColor,
+                backgroundColor: _surfaceColor,
                 child: CustomScrollView(
                   physics: const AlwaysScrollableScrollPhysics(),
                   slivers: [
                     SliverToBoxAdapter(
-                      child: _buildHeader(theme),
+                      child: FadeInDown(
+                        duration: const Duration(milliseconds: 600),
+                        child: _buildHeader(),
+                      ),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildStatsGrid(theme),
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 600),
+                        delay: const Duration(milliseconds: 100),
+                        child: _buildStatsGrid(),
+                      ),
                     ),
                     SliverToBoxAdapter(
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(20, 32, 20, 12),
-                        child: Text(
-                          '设置',
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
+                      child: FadeInLeft(
+                        duration: const Duration(milliseconds: 500),
+                        delay: const Duration(milliseconds: 200),
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 32, 20, 12),
+                          child: Text(
+                            '设置',
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.w600,
+                              color: _foregroundColor,
+                            ),
                           ),
                         ),
                       ),
                     ),
                     SliverToBoxAdapter(
-                      child: _buildSettingsList(theme),
+                      child: FadeInUp(
+                        duration: const Duration(milliseconds: 600),
+                        delay: const Duration(milliseconds: 300),
+                        child: _buildSettingsList(),
+                      ),
                     ),
                     const SliverToBoxAdapter(
                       child: SizedBox(height: 32),
@@ -106,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader(ThemeData theme) {
+  Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 40, 20, 16),
       child: Column(
@@ -116,33 +142,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 96,
             height: 96,
             decoration: BoxDecoration(
-              color: theme.colorScheme.surfaceVariant,
+              color: _surfaceVariant,
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: theme.colorScheme.shadow.withOpacity(0.2),
-                  blurRadius: 16,
-                  offset: const Offset(0, 6),
+                  color: _primaryColor.withOpacity(0.15),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Icon(
+            child: const Icon(
               Icons.fitness_center,
               size: 40,
-              color: theme.colorScheme.onSurfaceVariant,
+              color: _primaryColor,
             ),
           ),
           const SizedBox(height: 20),
           Text(
             '健身达人',
-            style: theme.textTheme.headlineSmall,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: _foregroundColor,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
             '已坚持训练 $_totalWorkouts 次',
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            style: TextStyle(
+              fontSize: 14,
+              color: _mutedColor,
             ),
             textAlign: TextAlign.center,
           ),
@@ -151,7 +182,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatsGrid(ThemeData theme) {
+  Widget _buildStatsGrid() {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -160,10 +191,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(
-                  child:
-                      _buildStatCard('总训练时长', '$_totalDuration', '分钟', theme)),
+                  child: _buildStatCard(
+                      '总训练时长', '$_totalDuration', '分钟')),
               const SizedBox(width: 12),
-              Expanded(child: _buildStatCard('总组数', '$_totalSets', '组', theme)),
+              Expanded(child: _buildStatCard('总组数', '$_totalSets', '组')),
             ],
           ),
           const SizedBox(height: 12),
@@ -175,7 +206,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   '平均疲劳度',
                   _avgFatigue.toStringAsFixed(1),
                   '/10',
-                  theme,
                 ),
               ),
               const SizedBox(width: 12),
@@ -184,7 +214,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   '最常练',
                   _favoriteBodyPart,
                   '部位',
-                  theme,
                 ),
               ),
             ],
@@ -194,9 +223,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatCard(
-      String title, String value, String unit, ThemeData theme) {
-    return Card(
+  Widget _buildStatCard(String title, String value, String unit) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _surfaceColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _borderColor),
+      ),
       child: ConstrainedBox(
         constraints: const BoxConstraints(minHeight: 110),
         child: Padding(
@@ -207,7 +240,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 title,
-                style: theme.textTheme.labelMedium,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: _mutedColor,
+                ),
               ),
               const SizedBox(height: 12),
               Row(
@@ -217,16 +254,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 children: [
                   Text(
                     value,
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      fontSize: 28,
+                    style: TextStyle(
+                      fontSize: 32,
                       fontWeight: FontWeight.w300,
                       height: 1.1,
+                      color: _foregroundColor,
                     ),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     unit,
-                    style: theme.textTheme.bodySmall,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: _mutedColor,
+                    ),
                   ),
                 ],
               ),
@@ -237,10 +278,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildSettingsList(ThemeData theme) {
+  Widget _buildSettingsList() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Card(
+      child: Container(
+        decoration: BoxDecoration(
+          color: _surfaceColor,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: _borderColor),
+        ),
         clipBehavior: Clip.antiAlias,
         child: Column(
           children: [
@@ -256,53 +302,50 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 );
               },
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.file_download_outlined,
               title: '导出备份',
               subtitle: '导出所有数据为JSON备份文件',
               onTap: _exportBackup,
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.file_upload_outlined,
               title: '导入备份',
               subtitle: '从JSON备份文件恢复数据',
               onTap: _importBackup,
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.notifications_outlined,
               title: '休息提醒',
               subtitle: '训练结束后2分钟提醒',
               onTap: () {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('休息提醒已开启')),
+                  const SnackBar(
+                    content: Text('休息提醒已开启'),
+                    backgroundColor: _surfaceVariant,
+                  ),
                 );
               },
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.system_update_outlined,
               title: '检查更新',
               subtitle: '检查是否有新版本可用',
               onTap: _checkForUpdate,
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.delete_outline,
               title: '删除所有记录',
               subtitle: '清除所有训练数据、计划、模板及身体数据',
               onTap: _deleteAllRecords,
-              theme: theme,
             ),
-            const Divider(height: 1, indent: 56),
+            const Divider(height: 1, indent: 56, color: _borderColor),
             _buildSettingItem(
               icon: Icons.info_outline,
               title: '关于',
@@ -312,16 +355,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   context: context,
                   applicationName: 'Gym Copilot',
                   applicationVersion: '1.0.0',
-                  applicationIcon: Icon(
+                  applicationIcon: const Icon(
                     Icons.fitness_center,
-                    color: theme.colorScheme.primary,
+                    color: _primaryColor,
                   ),
                   children: [
-                    const Text('你的智能健身助手'),
+                    Text(
+                      '你的智能健身助手',
+                      style: TextStyle(color: _foregroundColor),
+                    ),
                   ],
                 );
               },
-              theme: theme,
             ),
           ],
         ),
@@ -334,7 +379,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    required ThemeData theme,
   }) {
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
@@ -342,23 +386,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceVariant.withOpacity(0.6),
+          color: _surfaceVariant.withOpacity(0.6),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
           icon,
           size: 20,
-          color: theme.colorScheme.onSurfaceVariant,
+          color: _primaryColor,
         ),
       ),
-      title: Text(title, style: theme.textTheme.titleMedium),
+      title: Text(
+        title,
+        style: TextStyle(
+          fontSize: 15,
+          fontWeight: FontWeight.w500,
+          color: _foregroundColor,
+        ),
+      ),
       subtitle: Text(
         subtitle,
-        style: theme.textTheme.bodySmall,
+        style: TextStyle(
+          fontSize: 12,
+          color: _mutedColor,
+        ),
       ),
-      trailing: Icon(
+      trailing: const Icon(
         Icons.chevron_right,
-        color: theme.colorScheme.onSurfaceVariant,
+        color: _mutedColor,
       ),
       onTap: onTap,
     );
@@ -369,7 +423,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (!service.isSupported) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('当前平台不支持热更新')),
+          const SnackBar(
+            content: Text('当前平台不支持热更新'),
+            backgroundColor: _surfaceVariant,
+          ),
         );
       }
       return;
@@ -384,16 +441,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final confirmed = await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
-            title: const Text('发现新版本'),
-            content: const Text('检测到可用的更新补丁，是否立即下载？'),
+            backgroundColor: _surfaceColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: _borderColor),
+            ),
+            title: Text(
+              '发现新版本',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: _foregroundColor,
+              ),
+            ),
+            content: Text(
+              '检测到可用的更新补丁，是否立即下载？',
+              style: TextStyle(color: _foregroundColor),
+            ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('稍后'),
+                child: Text(
+                  '稍后',
+                  style: TextStyle(color: _mutedColor),
+                ),
               ),
               FilledButton(
+                style: FilledButton.styleFrom(
+                  backgroundColor: _primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('下载'),
+                child: Text(
+                  '下载',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -401,15 +485,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         if (confirmed == true && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('正在下载更新...')),
+            const SnackBar(
+              content: Text('正在下载更新...'),
+              backgroundColor: _surfaceVariant,
+            ),
           );
           final success = await service.downloadUpdate();
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text(success
-                    ? '更新已就绪，重启应用后生效'
-                    : '下载失败，请稍后重试'),
+                content: Text(
+                  success ? '更新已就绪，重启应用后生效' : '下载失败，请稍后重试',
+                  style: TextStyle(),
+                ),
+                backgroundColor: _surfaceVariant,
               ),
             );
           }
@@ -420,14 +509,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('已是最新版本 (补丁 #${patchNum ?? 0})'),
+              content: Text(
+                '已是最新版本 (补丁 #${patchNum ?? 0})',
+                style: TextStyle(),
+              ),
+              backgroundColor: _surfaceVariant,
             ),
           );
         }
         break;
       case UpdateStatus.error:
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('检查更新失败，请检查网络连接')),
+          SnackBar(
+            content: Text(
+              '检查更新失败，请检查网络连接',
+              style: TextStyle(),
+            ),
+            backgroundColor: _surfaceVariant,
+          ),
         );
         break;
       default:
@@ -439,16 +538,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('删除所有记录'),
-        content: const Text('确定要删除所有训练记录、训练计划、模板和个人身体数据吗？此操作不可恢复。'),
+        backgroundColor: _surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: _borderColor),
+        ),
+        title: Text(
+          '删除所有记录',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _foregroundColor,
+          ),
+        ),
+        content: Text(
+          '确定要删除所有训练记录、训练计划、模板和个人身体数据吗？此操作不可恢复。',
+          style: TextStyle(color: _foregroundColor),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(
+              '取消',
+              style: TextStyle(color: _mutedColor),
+            ),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('删除所有'),
+            child: Text(
+              '删除所有',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -459,7 +585,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       _loadData();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('所有记录已删除')),
+          SnackBar(
+            content: Text(
+              '所有记录已删除',
+              style: TextStyle(),
+            ),
+            backgroundColor: _surfaceVariant,
+          ),
         );
       }
     }
@@ -472,7 +604,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (data.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('暂无数据可导出')),
+        SnackBar(
+          content: Text(
+            '暂无数据可导出',
+            style: TextStyle(),
+          ),
+          backgroundColor: _surfaceVariant,
+        ),
       );
       return;
     }
@@ -480,16 +618,43 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('导出备份'),
-        content: const Text('备份数据包含你的体重、体脂等个人身体数据，将以明文JSON格式导出。请妥善保管，勿在不信任的环境中分享。'),
+        backgroundColor: _surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: _borderColor),
+        ),
+        title: Text(
+          '导出备份',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _foregroundColor,
+          ),
+        ),
+        content: Text(
+          '备份数据包含你的体重、体脂等个人身体数据，将以明文JSON格式导出。请妥善保管，勿在不信任的环境中分享。',
+          style: TextStyle(color: _foregroundColor),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(
+              '取消',
+              style: TextStyle(color: _mutedColor),
+            ),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: _primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('继续导出'),
+            child: Text(
+              '继续导出',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -504,31 +669,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('导出备份'),
+        backgroundColor: _surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: _borderColor),
+        ),
+        title: Text(
+          '导出备份',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _foregroundColor,
+          ),
+        ),
         content: Container(
-          constraints: const BoxConstraints(maxHeight: 400, maxWidth: double.maxFinite),
+          constraints: const BoxConstraints(
+              maxHeight: 400, maxWidth: double.maxFinite),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 '将下方JSON文本复制保存，更新版本后可导入恢复数据',
-                style: Theme.of(context).textTheme.bodySmall,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _mutedColor,
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    color: _surfaceVariant,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _borderColor),
                   ),
                   child: SingleChildScrollView(
                     child: SelectableText(
                       jsonString,
                       style: TextStyle(
                         fontSize: 11,
-                        color: Theme.of(context).colorScheme.onSurface,
+                        color: _foregroundColor,
                       ),
                     ),
                   ),
@@ -540,7 +722,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('关闭'),
+            child: Text(
+              '关闭',
+              style: TextStyle(color: _mutedColor),
+            ),
           ),
         ],
       ),
@@ -553,7 +738,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('导入备份'),
+        backgroundColor: _surfaceColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: _borderColor),
+        ),
+        title: Text(
+          '导入备份',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: _foregroundColor,
+          ),
+        ),
         content: Container(
           constraints: const BoxConstraints(maxHeight: 400),
           child: Column(
@@ -562,22 +759,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               Text(
                 '将之前导出的JSON文本粘贴到下方',
-                style: Theme.of(context).textTheme.bodySmall,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _mutedColor,
+                ),
               ),
               const SizedBox(height: 16),
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    color: _surfaceVariant,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: _borderColor),
                   ),
                   child: TextField(
                     controller: controller,
                     maxLines: null,
                     expands: true,
-                    decoration: const InputDecoration(
+                    style: TextStyle(color: _foregroundColor),
+                    decoration: InputDecoration(
                       hintText: '粘贴JSON数据...',
+                      hintStyle: TextStyle(color: _mutedColor),
                       border: InputBorder.none,
                     ),
                   ),
@@ -589,11 +792,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
+            child: Text(
+              '取消',
+              style: TextStyle(color: _mutedColor),
+            ),
           ),
           FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: _primaryColor,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('导入'),
+            child: Text(
+              '导入',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -613,13 +828,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('数据导入成功')),
+            SnackBar(
+              content: Text(
+                '数据导入成功',
+                style: TextStyle(),
+              ),
+              backgroundColor: _surfaceVariant,
+            ),
           );
         }
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('导入失败: $e')),
+            SnackBar(
+              content: Text(
+                '导入失败: $e',
+                style: TextStyle(),
+              ),
+              backgroundColor: _surfaceVariant,
+            ),
           );
         }
       }

@@ -268,11 +268,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(4),
+                  borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '模板',
-                  style: theme.textTheme.labelSmall?.copyWith(
+                  style: theme.textTheme.labelSmall!.copyWith(
                     color: theme.colorScheme.primary,
                   ),
                 ),
@@ -288,14 +288,14 @@ class _WorkoutScreenState extends State<WorkoutScreen>
           if (!_isSaving)
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: FilledButton(
+              child: ElevatedButton(
                 onPressed: _finishWorkout,
-                style: FilledButton.styleFrom(
+                style: ElevatedButton.styleFrom(
                   backgroundColor: theme.colorScheme.primary,
                   foregroundColor: theme.colorScheme.onPrimary,
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   elevation: 2,
                 ),
@@ -351,11 +351,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
         title: const Text('放弃训练？'),
         content: const Text('确定要放弃当前训练吗？已记录的数据将不会保存。'),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('继续训练'),
           ),
-          FilledButton(
+          ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(context);
               navigator.pop();
@@ -381,11 +381,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
         title: const Text('删除记录'),
         content: Text('确定要删除 "${set.exerciseName}" 的第${set.setNumber}组记录吗？'),
         actions: [
-          TextButton(
+          OutlinedButton(
             onPressed: () => Navigator.pop(context),
             child: const Text('取消'),
           ),
-          FilledButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.pop(context);
               setState(() {
@@ -393,7 +393,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               });
               _persistWorkoutState();
             },
-            style: FilledButton.styleFrom(
+            style: ElevatedButton.styleFrom(
               backgroundColor: Theme.of(context).colorScheme.error,
             ),
             child: const Text('删除'),
@@ -528,7 +528,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                     const SizedBox(height: 2),
                     Text(
                       '开始',
-                      style: theme.textTheme.titleSmall?.copyWith(
+                      style: theme.textTheme.titleSmall!.copyWith(
                         color: theme.colorScheme.primary,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 3,
@@ -569,7 +569,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               child: Text(
                 minutes.toString().padLeft(2, '0'),
                 key: ValueKey<int>(minutes),
-                style: theme.textTheme.displayLarge?.copyWith(
+                style: theme.textTheme.displayLarge!.copyWith(
                   fontSize: 48,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2,
@@ -579,7 +579,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
             ),
             Text(
               ':',
-              style: theme.textTheme.displayLarge?.copyWith(
+              style: theme.textTheme.displayLarge!.copyWith(
                 fontSize: 36,
                 fontWeight: FontWeight.w300,
                 color: theme.colorScheme.primary.withOpacity(0.5),
@@ -603,7 +603,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               child: Text(
                 seconds.toString().padLeft(2, '0'),
                 key: ValueKey<int>(seconds),
-                style: theme.textTheme.displayLarge?.copyWith(
+                style: theme.textTheme.displayLarge!.copyWith(
                   fontSize: 48,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2,
@@ -711,7 +711,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                           : _isTimerRunning
                               ? theme.colorScheme.surfaceVariant.withOpacity(0.5)
                               : theme.colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: isSelected
                             ? theme.colorScheme.primary
@@ -731,7 +731,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                     child: Text(
                       ExerciseData.getTagDisplayName(tag),
                       textAlign: TextAlign.center,
-                      style: theme.textTheme.labelMedium?.copyWith(
+                      style: theme.textTheme.labelMedium!.copyWith(
                         color: isSelected
                             ? theme.colorScheme.onPrimary
                             : _isTimerRunning
@@ -766,14 +766,14 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               const SizedBox(height: 20),
               Text(
                 '点击右下角按钮添加训练动作',
-                style: theme.textTheme.bodyLarge?.copyWith(
+                style: theme.textTheme.bodyLarge!.copyWith(
                   color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 8),
               Text(
                 '开始你的训练吧',
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: theme.textTheme.bodyMedium!.copyWith(
                   color: theme.colorScheme.onSurfaceVariant.withOpacity(0.4),
                 ),
               ),
@@ -795,7 +795,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
           margin: const EdgeInsets.only(bottom: 12),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.15),
@@ -816,7 +816,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
             ),
           ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
             child: Material(
               color: Colors.transparent,
               child: InkWell(
@@ -838,7 +838,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                         child: Center(
                           child: Text(
                             '${index + 1}',
-                            style: theme.textTheme.labelMedium?.copyWith(
+                            style: theme.textTheme.labelMedium!.copyWith(
                               color: isTemplateSet
                                   ? theme.colorScheme.primary
                                   : theme.colorScheme.onPrimary,
@@ -855,7 +855,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                           children: [
                             Text(
                               set.exerciseName,
-                              style: theme.textTheme.titleMedium?.copyWith(
+                              style: theme.textTheme.titleMedium!.copyWith(
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -868,18 +868,18 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                                     ),
                                     decoration: BoxDecoration(
                                       color: theme.colorScheme.primary.withOpacity(0.1),
-                                      borderRadius: BorderRadius.circular(4),
+                                      borderRadius: BorderRadius.circular(8),
                                     ),
                                     child: Text(
                                       '模板动作 - 点击修改',
-                                      style: theme.textTheme.labelSmall?.copyWith(
+                                      style: theme.textTheme.labelSmall!.copyWith(
                                         color: theme.colorScheme.primary,
                                       ),
                                     ),
                                   )
                                 : Text(
                                     '${set.weight} kg × ${set.reps} 次',
-                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                    style: theme.textTheme.bodyMedium!.copyWith(
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
@@ -891,7 +891,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                         color: Colors.transparent,
                         child: InkWell(
                           onTap: () => _confirmDeleteSet(index),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(16),
                           child: Container(
                             padding: const EdgeInsets.all(8),
                             child: Icon(
@@ -967,7 +967,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
           children: [
             Text(
               '疲劳度',
-              style: theme.textTheme.titleSmall?.copyWith(
+              style: theme.textTheme.titleSmall!.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -975,11 +975,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surfaceVariant,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
                 '$_fatigueLevel / 10',
-                style: theme.textTheme.labelSmall?.copyWith(
+                style: theme.textTheme.labelSmall!.copyWith(
                   color: theme.colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                 ),
@@ -1031,7 +1031,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                   const SizedBox(width: 4),
                   Text(
                     '轻松',
-                    style: theme.textTheme.labelSmall?.copyWith(
+                    style: theme.textTheme.labelSmall!.copyWith(
                       color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
                     ),
                   ),
@@ -1041,7 +1041,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                 children: [
                   Text(
                     '力竭',
-                    style: theme.textTheme.labelSmall?.copyWith(
+                    style: theme.textTheme.labelSmall!.copyWith(
                       color: theme.colorScheme.onSurfaceVariant.withOpacity(0.6),
                     ),
                   ),
@@ -1133,7 +1133,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
             ],
           ),
           actions: [
-            TextButton(
+            OutlinedButton(
               child: const Text('继续训练'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
@@ -1147,7 +1147,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                 });
               },
             ),
-            FilledButton(
+            ElevatedButton(
               child: const Text('保存记录'),
               onPressed: () async {
                 if (_isSaving) return;
@@ -1235,11 +1235,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
           title: const Text('结束训练？'),
           content: const Text('您尚未记录任何动作，确定要结束本次训练吗？'),
           actions: [
-            TextButton(
+            OutlinedButton(
               child: const Text('继续训练'),
               onPressed: () => Navigator.of(dialogContext).pop(),
             ),
-            FilledButton(
+            ElevatedButton(
               child: const Text('结束训练'),
               onPressed: () {
                 Navigator.of(dialogContext).pop();
@@ -1330,7 +1330,7 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1349,22 +1349,22 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
           const SizedBox(height: 20),
           Text(
             '添加第 ${widget.setNumber} 组',
-            style: theme.textTheme.headlineSmall,
+            style: theme.textTheme.headlineSmall!,
           ),
           const SizedBox(height: 20),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(16),
             ),
             child: DropdownButtonHideUnderline(
               child: DropdownButton<Exercise>(
                 value: _selectedExercise,
-                hint: Text('选择动作', style: theme.textTheme.bodyMedium),
+                hint: Text('选择动作', style: theme.textTheme.bodyMedium!),
                 isExpanded: true,
                 dropdownColor: theme.colorScheme.surfaceVariant,
-                style: theme.textTheme.bodyMedium,
+                style: theme.textTheme.bodyMedium!,
                 items: widget.exercises.map((exercise) {
                   return DropdownMenuItem(
                     value: exercise,
@@ -1387,19 +1387,19 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
                     controller: _weightController,
                     keyboardType: TextInputType.number,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium!,
                     decoration: InputDecoration(
                       hintText: '重量',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      hintStyle: theme.textTheme.bodyMedium!.copyWith( 
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       suffixText: 'kg',
-                      suffixStyle: theme.textTheme.bodySmall,
+                      suffixStyle: theme.textTheme.bodySmall!,
                       border: InputBorder.none,
                     ),
                   ),
@@ -1411,19 +1411,19 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
                     controller: _repsController,
                     keyboardType: TextInputType.number,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium!,
                     decoration: InputDecoration(
                       hintText: '次数',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      hintStyle: theme.textTheme.bodyMedium!.copyWith( 
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       suffixText: '次',
-                      suffixStyle: theme.textTheme.bodySmall,
+                      suffixStyle: theme.textTheme.bodySmall!,
                       border: InputBorder.none,
                     ),
                   ),
@@ -1435,19 +1435,19 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
-                    controller: _setsController,
+                    controller: _repsController,
                     keyboardType: TextInputType.number,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium!,
                     decoration: InputDecoration(
-                      hintText: '组数',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      hintText: '次数',
+                      hintStyle: theme.textTheme.bodyMedium!.copyWith(
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
-                      suffixText: '组',
-                      suffixStyle: theme.textTheme.bodySmall,
+                      suffixText: '次',
+                      suffixStyle: theme.textTheme.bodySmall!,
                       border: InputBorder.none,
                     ),
                   ),
@@ -1458,7 +1458,7 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: ElevatedButton(
               onPressed: () {
                 if (_selectedExercise == null ||
                     _weightController.text.isEmpty ||
@@ -1507,10 +1507,10 @@ class _AddSetBottomSheetState extends State<_AddSetBottomSheet> {
 
                 Navigator.pop(context, exerciseSets);
               },
-              style: FilledButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
               child: const Text(
@@ -1577,7 +1577,7 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -1596,7 +1596,7 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
           const SizedBox(height: 20),
           Text(
             '编辑 ${widget.set.exerciseName}',
-            style: theme.textTheme.headlineSmall,
+            style: theme.textTheme.headlineSmall!,
           ),
           const SizedBox(height: 20),
           Row(
@@ -1606,19 +1606,19 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
                     controller: _weightController,
                     keyboardType: TextInputType.number,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium!,
                     decoration: InputDecoration(
                       hintText: '重量',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      hintStyle: theme.textTheme.bodyMedium!.copyWith( 
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       suffixText: 'kg',
-                      suffixStyle: theme.textTheme.bodySmall,
+                      suffixStyle: theme.textTheme.bodySmall!,
                       border: InputBorder.none,
                     ),
                   ),
@@ -1630,19 +1630,19 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(16),
                   ),
                   child: TextField(
                     controller: _repsController,
                     keyboardType: TextInputType.number,
-                    style: theme.textTheme.bodyMedium,
+                    style: theme.textTheme.bodyMedium!,
                     decoration: InputDecoration(
                       hintText: '次数',
-                      hintStyle: theme.textTheme.bodyMedium?.copyWith(
+                      hintStyle: theme.textTheme.bodyMedium!.copyWith( 
                         color: theme.colorScheme.onSurfaceVariant,
                       ),
                       suffixText: '次',
-                      suffixStyle: theme.textTheme.bodySmall,
+                      suffixStyle: theme.textTheme.bodySmall!,
                       border: InputBorder.none,
                     ),
                   ),
@@ -1653,7 +1653,7 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
           const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: ElevatedButton(
               onPressed: () {
                 if (_weightController.text.isEmpty ||
                     _repsController.text.isEmpty) {
@@ -1685,10 +1685,10 @@ class _EditSetBottomSheetState extends State<_EditSetBottomSheet> {
 
                 Navigator.pop(context, updatedSet);
               },
-              style: FilledButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(16),
                 ),
               ),
               child: const Text(

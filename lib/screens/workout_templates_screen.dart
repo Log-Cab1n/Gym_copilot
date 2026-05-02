@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../data/exercise_data.dart';
 import '../database/database_helper.dart';
@@ -11,8 +12,7 @@ class WorkoutTemplatesScreen extends StatefulWidget {
   const WorkoutTemplatesScreen({super.key});
 
   @override
-  State<WorkoutTemplatesScreen> createState() =>
-      _WorkoutTemplatesScreenState();
+  State<WorkoutTemplatesScreen> createState() => _WorkoutTemplatesScreenState();
 }
 
 class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
@@ -59,7 +59,10 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
                   itemCount: _templates.length,
                   itemBuilder: (context, index) {
                     final template = _templates[index];
-                    return _buildTemplateCard(template, theme);
+                    return FadeInUp(
+                      delay: Duration(milliseconds: index * 50),
+                      child: _buildTemplateCard(template, theme),
+                    );
                   },
                 ),
       floatingActionButton: FloatingActionButton.extended(
@@ -73,29 +76,29 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
 
   Widget _buildEmptyState(ThemeData theme) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.folder_outlined,
-            size: 72,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            '还没有训练模板',
-            style: theme.textTheme.titleMedium?.copyWith(
+      child: FadeInUp(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_outlined,
+              size: 72,
               color: theme.colorScheme.onSurfaceVariant,
             ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '点击右下角按钮创建新模板',
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            const SizedBox(height: 20),
+            Text(
+              '还没有训练模板',
+              style: TextStyle(
+                  fontSize: 16, color: theme.colorScheme.onSurfaceVariant),
             ),
-          ),
-        ],
+            const SizedBox(height: 8),
+            Text(
+              '点击右下角按钮创建新模板',
+              style: TextStyle(
+                  fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -137,7 +140,7 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () => _useTemplate(template),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(20),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -150,9 +153,8 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
                   Expanded(
                     child: Text(
                       name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                   ),
                   IconButton(
@@ -167,7 +169,7 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
               const SizedBox(height: 4),
               Text(
                 '部位: $bodyPart',
-                style: theme.textTheme.bodySmall,
+                style: TextStyle(fontSize: 12),
               ),
               const SizedBox(height: 8),
               // 显示动作详情（包含重量、次数、组数）
@@ -184,14 +186,13 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
                         Expanded(
                           child: Text(
                             exercise['exerciseName'] as String,
-                            style: theme.textTheme.bodySmall,
+                            style: TextStyle(fontSize: 12),
                           ),
                         ),
                         Text(
                           '$weight kg × $reps 次 × $sets 组',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: theme.colorScheme.primary,
-                          ),
+                          style: TextStyle(
+                              fontSize: 11, color: theme.colorScheme.primary),
                         ),
                       ],
                     ),
@@ -201,9 +202,8 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
               const SizedBox(height: 8),
               Text(
                 '创建时间: ${_formatDate(createdAt)}',
-                style: theme.textTheme.labelSmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: TextStyle(
+                    fontSize: 11, color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -248,7 +248,7 @@ class _WorkoutTemplatesScreenState extends State<WorkoutTemplatesScreen> {
             onPressed: () => Navigator.pop(context, false),
             child: const Text('取消'),
           ),
-          FilledButton(
+          ElevatedButton(
             onPressed: () => Navigator.pop(context, true),
             child: const Text('删除'),
           ),
@@ -295,7 +295,8 @@ class TemplateExerciseConfig {
   });
 }
 
-class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> {
+class _CreateTemplateBottomSheetState
+    extends State<_CreateTemplateBottomSheet> {
   final TextEditingController _nameController = TextEditingController();
   String? _selectedBodyPart;
   final List<TemplateExerciseConfig> _selectedExercises = [];
@@ -313,7 +314,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
       ),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.max,
@@ -333,7 +334,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           const SizedBox(height: 16),
           Text(
             '新建训练模板',
-            style: theme.textTheme.titleMedium,
+            style: TextStyle(fontSize: 16),
           ),
           const SizedBox(height: 16),
           // 模板名称输入
@@ -341,16 +342,15 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
               color: theme.colorScheme.surfaceVariant,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
             ),
             child: TextField(
               controller: _nameController,
-              style: theme.textTheme.bodyMedium,
+              style: TextStyle(fontSize: 14),
               decoration: InputDecoration(
                 hintText: '模板名称',
-                hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                hintStyle: TextStyle(
+                    fontSize: 14, color: theme.colorScheme.onSurfaceVariant),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(vertical: 14),
               ),
@@ -358,7 +358,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           ),
           const SizedBox(height: 16),
           // 训练部位选择
-          Text('选择训练部位', style: theme.textTheme.bodyMedium),
+          Text('选择训练部位', style: TextStyle(fontSize: 14)),
           const SizedBox(height: 10),
           Row(
             children: ExerciseData.getAllTags().map((tag) {
@@ -370,25 +370,25 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                     color: isSelected
                         ? theme.colorScheme.primary
                         : theme.colorScheme.surfaceVariant,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(20),
                     child: InkWell(
                       onTap: () {
                         setState(() {
                           _selectedBodyPart = isSelected ? null : tag;
                         });
                       },
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 10),
                         child: Text(
                           ExerciseData.getTagDisplayName(tag),
                           textAlign: TextAlign.center,
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            color: isSelected
-                                ? theme.colorScheme.onPrimary
-                                : theme.colorScheme.onSurface,
-                            fontWeight: isSelected ? FontWeight.w600 : null,
-                          ),
+                          style: TextStyle(
+                              fontSize: 11,
+                              color: isSelected
+                                  ? theme.colorScheme.onPrimary
+                                  : theme.colorScheme.onSurface,
+                              fontWeight: isSelected ? FontWeight.w600 : null),
                         ),
                       ),
                     ),
@@ -402,7 +402,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('选择动作', style: theme.textTheme.bodyMedium),
+              Text('选择动作', style: TextStyle(fontSize: 14)),
               if (_selectedBodyPart != null)
                 TextButton(
                   onPressed: () {
@@ -423,21 +423,21 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: Center(
                       child: Text(
                         '请先选择训练部位',
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
-                        ),
+                        style: TextStyle(
+                            fontSize: 12,
+                            color: theme.colorScheme.onSurfaceVariant),
                       ),
                     ),
                   )
                 : Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surfaceVariant.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(20),
                     ),
                     child: ListView.builder(
                       controller: widget.scrollController,
@@ -445,18 +445,21 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                       itemCount: _getFilteredExercises().length,
                       itemBuilder: (context, index) {
                         final exercise = _getFilteredExercises()[index];
-                        final isSelected = _selectedExercises.any((e) => e.exercise.id == exercise.id);
+                        final isSelected = _selectedExercises
+                            .any((e) => e.exercise.id == exercise.id);
                         return CheckboxListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 4),
                           title: Text(
                             exercise.name,
-                            style: theme.textTheme.bodyMedium,
+                            style: TextStyle(fontSize: 14),
                           ),
                           value: isSelected,
                           onChanged: (value) async {
                             if (value == true) {
                               // 显示配置弹窗
-                              final config = await _showExerciseConfigDialog(exercise);
+                              final config =
+                                  await _showExerciseConfigDialog(exercise);
                               if (config != null) {
                                 setState(() {
                                   _selectedExercises.add(config);
@@ -464,7 +467,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                               }
                             } else {
                               setState(() {
-                                _selectedExercises.removeWhere((e) => e.exercise.id == exercise.id);
+                                _selectedExercises.removeWhere(
+                                    (e) => e.exercise.id == exercise.id);
                               });
                             }
                           },
@@ -486,7 +490,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                     final index = entry.key;
                     final config = entry.value;
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 8),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceVariant,
                         borderRadius: BorderRadius.circular(20),
@@ -499,16 +504,14 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                         children: [
                           Text(
                             config.exercise.name,
-                            style: theme.textTheme.labelMedium?.copyWith(
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w500),
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${config.weight}kg×${config.reps}次',
-                            style: theme.textTheme.labelSmall?.copyWith(
-                              color: theme.colorScheme.primary,
-                            ),
+                            style: TextStyle(
+                                fontSize: 11, color: theme.colorScheme.primary),
                           ),
                           const SizedBox(width: 4),
                           GestureDetector(
@@ -543,16 +546,16 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           // 保存按钮 - 固定在底部
           SizedBox(
             width: double.infinity,
-            child: FilledButton(
+            child: ElevatedButton(
               onPressed: _selectedExercises.isEmpty ||
                       _nameController.text.isEmpty ||
                       _selectedBodyPart == null
                   ? null
                   : _saveTemplate,
-              style: FilledButton.styleFrom(
+              style: ElevatedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(20),
                 ),
               ),
               child: const Text(
@@ -571,13 +574,12 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
 
   List<Exercise> _getFilteredExercises() {
     if (_selectedBodyPart == null) return [];
-    return widget.exercises
-        .where((e) => e.tag == _selectedBodyPart)
-        .toList();
+    return widget.exercises.where((e) => e.tag == _selectedBodyPart).toList();
   }
 
   // 显示动作配置弹窗
-  Future<TemplateExerciseConfig?> _showExerciseConfigDialog(Exercise exercise) async {
+  Future<TemplateExerciseConfig?> _showExerciseConfigDialog(
+      Exercise exercise) async {
     final weightController = TextEditingController();
     final repsController = TextEditingController();
     final setsController = TextEditingController(text: '1');
@@ -597,7 +599,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -609,9 +611,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                 children: [
                   Text(
                     exercise.name,
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context, null),
@@ -664,7 +665,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text('取消'),
@@ -672,9 +673,10 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton(
+                    child: ElevatedButton(
                       onPressed: () {
-                        final weight = double.tryParse(weightController.text) ?? 0;
+                        final weight =
+                            double.tryParse(weightController.text) ?? 0;
                         final reps = int.tryParse(repsController.text) ?? 0;
                         final sets = int.tryParse(setsController.text) ?? 1;
 
@@ -688,10 +690,10 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                           ),
                         );
                       },
-                      style: FilledButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text('确定'),
@@ -719,16 +721,15 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
       children: [
         Text(
           label,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
+          style: TextStyle(
+              fontSize: 12, color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: 8),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
           decoration: BoxDecoration(
             color: theme.colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Row(
             children: [
@@ -737,14 +738,13 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                   controller: controller,
                   keyboardType: TextInputType.number,
                   textAlign: TextAlign.center,
-                  style: theme.textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(
+                      fontSize: 22, fontWeight: FontWeight.bold),
                   decoration: InputDecoration(
                     hintText: '0',
-                    hintStyle: theme.textTheme.titleLarge?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
+                    hintStyle: TextStyle(
+                        fontSize: 22,
+                        color: theme.colorScheme.onSurfaceVariant),
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.zero,
                   ),
@@ -752,9 +752,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
               ),
               Text(
                 unit,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+                style: TextStyle(
+                    fontSize: 14, color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
           ),
@@ -766,7 +765,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
   // 编辑动作配置
   Future<void> _editExerciseConfig(int index) async {
     final config = _selectedExercises[index];
-    final weightController = TextEditingController(text: config.weight.toString());
+    final weightController =
+        TextEditingController(text: config.weight.toString());
     final repsController = TextEditingController(text: config.reps.toString());
     final setsController = TextEditingController(text: config.sets.toString());
 
@@ -785,7 +785,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
           ),
           decoration: BoxDecoration(
             color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -797,9 +797,8 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                 children: [
                   Text(
                     '编辑 ${config.exercise.name}',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context, null),
@@ -852,7 +851,7 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text('取消'),
@@ -860,9 +859,10 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: FilledButton(
+                    child: ElevatedButton(
                       onPressed: () {
-                        final weight = double.tryParse(weightController.text) ?? 0;
+                        final weight =
+                            double.tryParse(weightController.text) ?? 0;
                         final reps = int.tryParse(repsController.text) ?? 0;
                         final sets = int.tryParse(setsController.text) ?? 1;
 
@@ -876,10 +876,10 @@ class _CreateTemplateBottomSheetState extends State<_CreateTemplateBottomSheet> 
                           ),
                         );
                       },
-                      style: FilledButton.styleFrom(
+                      style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                       ),
                       child: const Text('保存'),

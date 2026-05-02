@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../database/database_helper.dart';
 import '../main.dart';

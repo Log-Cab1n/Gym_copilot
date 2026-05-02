@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../database/database_helper.dart';
 import '../models/exercise.dart';
@@ -13,6 +14,16 @@ class ExerciseLibraryScreen extends StatefulWidget {
 }
 
 class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
+  // 新设计系统
+  static const Color _background = Color(0xFF0B0F19);
+  static const Color _surface = Color(0xFF1A1F2E);
+  static const Color _surfaceVariant = Color(0xFF242B3D);
+  static const Color _primary = Color(0xFFF97316);
+  static const Color _foreground = Color(0xFFF8FAFC);
+  static const Color _muted = Color(0xFF64748B);
+  static const Color _border = Color(0xFF2D3748);
+  static const Color _error = Color(0xFFEF4444);
+
   List<Exercise> _exercises = [];
   List<Exercise> _filteredExercises = [];
   Map<int, Map<String, dynamic>> _exerciseUsageStats = {};
@@ -54,7 +65,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       debugPrint('加载动作失败: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('加载动作失败，请重试')),
+          SnackBar(
+            content: Text(
+              '加载动作失败，请重试',
+              style: TextStyle(color: _foreground),
+            ),
+            backgroundColor: _surface,
+          ),
         );
       }
     }
@@ -79,11 +96,20 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: _background,
       appBar: AppBar(
-        title: const Text('动作库'),
+        backgroundColor: _background,
+        elevation: 0,
+        title: Text(
+          '动作库',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            color: _foreground,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: _foreground),
       ),
       body: Column(
         children: [
@@ -93,31 +119,32 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
             child: Center(
               child: Container(
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.surfaceVariant,
-                  borderRadius: BorderRadius.circular(16),
+                  color: _surfaceVariant,
+                  borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: theme.colorScheme.outline.withOpacity(0.5),
+                    color: _border,
                     width: 1,
                   ),
                 ),
                 child: TextField(
                   controller: _searchController,
-                  style: theme.textTheme.bodyMedium,
+                  style: TextStyle(fontSize: 14, color: _foreground),
                   textAlignVertical: TextAlignVertical.center,
                   decoration: InputDecoration(
                     hintText: '搜索动作',
-                    hintStyle: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                    hintStyle: TextStyle(
+                      fontSize: 14,
+                      color: _muted,
                     ),
                     prefixIcon: Icon(
                       Icons.search,
-                      color: theme.colorScheme.onSurfaceVariant,
+                      color: _muted,
                     ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: Icon(
                               Icons.clear,
-                              color: theme.colorScheme.onSurfaceVariant,
+                              color: _muted,
                             ),
                             onPressed: () {
                               _searchController.clear();
@@ -137,14 +164,25 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           Container(
             margin: const EdgeInsets.symmetric(horizontal: 20),
             height: 44,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              children: [
-                const SizedBox(width: 4),
-                ...ExerciseData.getAllTags().map((tag) => _buildTagChip(
-                    tag, ExerciseData.getTagDisplayName(tag), theme)),
-                const SizedBox(width: 4),
-              ],
+            child: FadeIn(
+              child: ListView(
+                scrollDirection: Axis.horizontal,
+                children: [
+                  const SizedBox(width: 4),
+                  ...ExerciseData.getAllTags().asMap().entries.map((entry) {
+                    final index = entry.key;
+                    final tag = entry.value;
+                    return FadeInLeft(
+                      delay: Duration(milliseconds: index * 50),
+                      child: _buildTagChip(
+                        tag,
+                        ExerciseData.getTagDisplayName(tag),
+                      ),
+                    );
+                  }),
+                  const SizedBox(width: 4),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -152,165 +190,180 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _loadExercises,
-              color: theme.colorScheme.primary,
-              backgroundColor: theme.colorScheme.surface,
+              color: _primary,
+              backgroundColor: _surface,
               child: _filteredExercises.isEmpty
-                  ? _buildEmptyState(theme)
+                  ? _buildEmptyState()
                   : ListView.builder(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: _filteredExercises.length,
-                itemBuilder: (context, index) {
-                  final exercise = _filteredExercises[index];
-                  final stats = _exerciseUsageStats[exercise.id];
-                  final useCount = stats?['useCount'] ?? 0;
-                  final lastUsedDate = stats?['lastUsedDate'] as String?;
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemCount: _filteredExercises.length,
+                      itemBuilder: (context, index) {
+                        final exercise = _filteredExercises[index];
+                        final stats = _exerciseUsageStats[exercise.id];
+                        final useCount = stats?['useCount'] ?? 0;
+                        final lastUsedDate = stats?['lastUsedDate'] as String?;
 
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 8),
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: theme.colorScheme.outline.withOpacity(0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: InkWell(
-                      onTap: () =>
-                          _showExerciseDetail(exercise, useCount, lastUsedDate),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Row(
-                          children: [
-                            // 左侧图标
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: _getTagColor(exercise.tag).withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(12),
+                        return FadeInUp(
+                          delay: Duration(milliseconds: index * 50),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            elevation: 0,
+                            color: _surface,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                              side: BorderSide(
+                                color: _border,
+                                width: 1,
                               ),
-                              child: Center(
-                                child: Icon(
-                                  _getTagIcon(exercise.tag),
-                                  color: _getTagColor(exercise.tag),
-                                  size: 24,
+                            ),
+                            child: InkWell(
+                              onTap: () => _showExerciseDetail(
+                                  exercise, useCount, lastUsedDate),
+                              borderRadius: BorderRadius.circular(20),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    // 左侧图标
+                                    Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        color: _getTagColor(exercise.tag)
+                                            .withOpacity(0.15),
+                                        borderRadius:
+                                            BorderRadius.circular(20),
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          _getTagIcon(exercise.tag),
+                                          color: _getTagColor(exercise.tag),
+                                          size: 24,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    // 中间信息
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            exercise.name,
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: _foreground,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Row(
+                                            children: [
+                                              if (useCount > 0) ...[
+                                                Container(
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 2,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: _surfaceVariant,
+                                                    borderRadius:
+                                                        BorderRadius.circular(8),
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Icon(
+                                                        Icons.fitness_center,
+                                                        size: 10,
+                                                        color: _muted,
+                                                      ),
+                                                      const SizedBox(width: 4),
+                                                      Text(
+                                                        '$useCount 次',
+                                                        style:
+                                                            TextStyle(
+                                                          fontSize: 10,
+                                                          fontWeight:
+                                                              FontWeight.w500,
+                                                          color: _muted,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    // 右侧信息
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        if (lastUsedDate != null) ...[
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 2,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: _surfaceVariant,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                Icon(
+                                                  Icons.calendar_today,
+                                                  size: 10,
+                                                  color: _muted,
+                                                ),
+                                                const SizedBox(width: 4),
+                                                Text(
+                                                  _formatDate(lastUsedDate),
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: _muted,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                    // 删除按钮已移至详情页
+                                  ],
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            // 中间信息
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    exercise.name,
-                                    style:
-                                        theme.textTheme.titleMedium?.copyWith(
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Row(
-                                    children: [
-                                      if (useCount > 0) ...[
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 8,
-                                            vertical: 2,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: theme
-                                                .colorScheme.surfaceVariant,
-                                            borderRadius:
-                                                BorderRadius.circular(4),
-                                          ),
-                                          child: Row(
-                                            mainAxisSize: MainAxisSize.min,
-                                            children: [
-                                              Icon(
-                                                Icons.fitness_center,
-                                                size: 10,
-                                                color: theme.colorScheme
-                                                    .onSurfaceVariant,
-                                              ),
-                                              const SizedBox(width: 4),
-                                              Text(
-                                                '$useCount 次',
-                                                style: theme
-                                                    .textTheme.labelSmall
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // 右侧信息
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                if (lastUsedDate != null) ...[
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: theme
-                                          .colorScheme.surfaceVariant,
-                                      borderRadius:
-                                          BorderRadius.circular(4),
-                                    ),
-                                    child: Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Icon(
-                                          Icons.calendar_today,
-                                          size: 10,
-                                          color: theme.colorScheme
-                                              .onSurfaceVariant,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          _formatDate(lastUsedDate),
-                                          style: theme
-                                              .textTheme.labelSmall
-                                              ?.copyWith(
-                                            color: theme.colorScheme
-                                                .onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            // 删除按钮已移至详情页
-                          ],
-                        ),
-                      ),
+                          ),
+                        );
+                      },
                     ),
-                  );
-                },
-              ),
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _showAddCustomExerciseDialog,
-        child: const Icon(Icons.add, size: 20),
+      floatingActionButton: FadeInUp(
+        child: FloatingActionButton(
+          onPressed: _showAddCustomExerciseDialog,
+          backgroundColor: _primary,
+          foregroundColor: _foreground,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: const Icon(Icons.add, size: 20),
+        ),
       ),
     );
   }
@@ -324,7 +377,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     }
   }
 
-  Widget _buildTagChip(String? tag, String label, ThemeData theme) {
+  Widget _buildTagChip(String? tag, String label) {
     final isSelected = _selectedTag == tag;
 
     return GestureDetector(
@@ -339,20 +392,16 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         margin: const EdgeInsets.only(right: 10),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? theme.colorScheme.primary
-              : theme.colorScheme.surfaceVariant,
+          color: isSelected ? _primary : _surfaceVariant,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isSelected
-                ? theme.colorScheme.primary
-                : theme.colorScheme.outline.withOpacity(0.2),
+            color: isSelected ? _primary : _border,
             width: 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: _primary.withOpacity(0.3),
                     blurRadius: 6,
                     offset: const Offset(0, 2),
                   ),
@@ -361,11 +410,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         ),
         child: Text(
           label,
-          style: theme.textTheme.labelMedium?.copyWith(
-            color: isSelected
-                ? theme.colorScheme.onPrimary
-                : theme.colorScheme.onSurface,
+          style: TextStyle(
+            fontSize: 12,
             fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+            color: _foreground,
           ),
         ),
       ),
@@ -403,132 +451,153 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        final theme = Theme.of(context);
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outline,
-                    borderRadius: BorderRadius.circular(2),
+        return FadeInUp(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: _surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: _getTagColor(exercise.tag).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: _getTagColor(exercise.tag).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _getTagIcon(exercise.tag),
+                          color: _getTagColor(exercise.tag),
+                          size: 24,
+                        ),
+                      ),
                     ),
-                    child: Center(
-                      child: Icon(
-                        _getTagIcon(exercise.tag),
-                        color: _getTagColor(exercise.tag),
-                        size: 24,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise.name,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: _foreground,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            ExerciseData.getTagDisplayName(exercise.tag),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                Divider(color: _border),
+                const SizedBox(height: 16),
+                _buildDetailRow(
+                  icon: Icons.fitness_center,
+                  label: '训练次数',
+                  value: '$useCount 次',
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  icon: Icons.calendar_today,
+                  label: '上次训练',
+                  value: lastUsedDate != null
+                      ? _formatDate(lastUsedDate)
+                      : '从未训练',
+                ),
+                const SizedBox(height: 12),
+                _buildDetailRow(
+                  icon: Icons.fitness_center,
+                  label: '关联部位',
+                  value: exercise.targetMuscles.isNotEmpty
+                      ? exercise.targetMuscles
+                      : '暂无',
+                ),
+                const SizedBox(height: 24),
+                Divider(color: _border),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      _showExerciseHistory(exercise);
+                    },
+                    icon: const Icon(Icons.history, size: 18),
+                    label: Text(
+                      '查看历史记录',
+                      style: TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: _primary,
+                      foregroundColor: _foreground,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          exercise.name,
-                          style: theme.textTheme.headlineSmall,
+                ),
+                if (!exercise.isBuiltIn) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        _deleteExercise(exercise);
+                      },
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        size: 18,
+                        color: _error,
+                      ),
+                      label: Text(
+                        '删除动作',
+                        style: TextStyle(
+                          color: _error,
+                          fontWeight: FontWeight.w600,
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          ExerciseData.getTagDisplayName(exercise.tag),
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: _error.withOpacity(0.3)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 16),
-              _buildDetailRow(
-                icon: Icons.fitness_center,
-                label: '训练次数',
-                value: '$useCount 次',
-                theme: theme,
-              ),
-              const SizedBox(height: 12),
-              _buildDetailRow(
-                icon: Icons.calendar_today,
-                label: '上次训练',
-                value:
-                    lastUsedDate != null ? _formatDate(lastUsedDate) : '从未训练',
-                theme: theme,
-              ),
-              const SizedBox(height: 12),
-              _buildDetailRow(
-                icon: Icons.fitness_center,
-                label: '关联部位',
-                value: exercise.targetMuscles.isNotEmpty
-                    ? exercise.targetMuscles
-                    : '暂无',
-                theme: theme,
-              ),
-              const SizedBox(height: 24),
-              const Divider(),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _showExerciseHistory(exercise);
-                  },
-                  icon: const Icon(Icons.history, size: 18),
-                  label: const Text('查看历史记录'),
-                ),
-              ),
-              if (!exercise.isBuiltIn) ...[
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.pop(context);
-                      _deleteExercise(exercise);
-                    },
-                    icon: Icon(
-                      Icons.delete_outline,
-                      size: 18,
-                      color: theme.colorScheme.error,
-                    ),
-                    label: Text(
-                      '删除动作',
-                      style: TextStyle(color: theme.colorScheme.error),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: theme.colorScheme.error.withOpacity(0.3)),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 32),
               ],
-              const SizedBox(height: 32),
-            ],
+            ),
           ),
         );
       },
@@ -543,165 +612,192 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
     if (!mounted) return;
 
-    final theme = Theme.of(context);
-
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: theme.colorScheme.surface,
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.outline,
-                    borderRadius: BorderRadius.circular(2),
+        return FadeInUp(
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: _surface,
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(20)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: _border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: _getTagColor(exercise.tag).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        _getTagIcon(exercise.tag),
-                        color: _getTagColor(exercise.tag),
-                        size: 24,
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: _getTagColor(exercise.tag).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          _getTagIcon(exercise.tag),
+                          color: _getTagColor(exercise.tag),
+                          size: 24,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          exercise.name,
-                          style: theme.textTheme.headlineSmall,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '历史记录',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            exercise.name,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: _foreground,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            '历史记录',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: _muted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                if (history.isEmpty)
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: FadeIn(
+                        child: Text(
+                          '暂无历史记录',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: _muted,
                           ),
                         ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              if (history.isEmpty)
-                Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
-                    child: Text(
-                      '暂无历史记录',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  ),
-                )
-              else
-                Flexible(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: history.length,
-                    itemBuilder: (context, index) {
-                      final record = history[index];
-                      final dateTime =
-                          DateTime.parse(record['dateTime'] as String);
-                      final weight = (record['weight'] as num).toDouble();
-                      final reps = record['reps'] as int;
-                      final setNumber = record['setNumber'] as int;
-                      final fatigueLevel = record['fatigueLevel'] as int;
+                  )
+                else
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: history.length,
+                      itemBuilder: (context, index) {
+                        final record = history[index];
+                        final dateTime =
+                            DateTime.parse(record['dateTime'] as String);
+                        final weight = (record['weight'] as num).toDouble();
+                        final reps = record['reps'] as int;
+                        final setNumber = record['setNumber'] as int;
+                        final fatigueLevel = record['fatigueLevel'] as int;
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceVariant,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    '$setNumber',
-                                    style:
-                                        theme.textTheme.labelMedium?.copyWith(
-                                      color: theme.colorScheme.onSurface,
+                        return FadeInUp(
+                          delay: Duration(milliseconds: index * 50),
+                          child: Card(
+                            margin: const EdgeInsets.only(bottom: 8),
+                            color: _surfaceVariant,
+                            elevation: 0,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Row(
+                                children: [
+                                  Container(
+                                    width: 36,
+                                    height: 36,
+                                    decoration: BoxDecoration(
+                                      color: _background,
+                                      shape: BoxShape.circle,
                                     ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      DateFormat('yyyy/MM/dd HH:mm')
-                                          .format(dateTime),
-                                      style: theme.textTheme.bodySmall,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      '${weight}kg × $reps次',
-                                      style:
-                                          theme.textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
+                                    child: Center(
+                                      child: Text(
+                                        '$setNumber',
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: _foreground,
+                                        ),
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          DateFormat('yyyy/MM/dd HH:mm')
+                                              .format(dateTime),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: _muted,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          '${weight}kg × $reps次',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: _foreground,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: _background,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      '疲劳$fatigueLevel',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                        color: _muted,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: theme.colorScheme.surfaceVariant,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  '疲劳$fatigueLevel',
-                                  style: theme.textTheme.labelSmall,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
-                      );
-                    },
+                        );
+                      },
+                    ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -712,7 +808,6 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     required IconData icon,
     required String label,
     required String value,
-    required ThemeData theme,
   }) {
     return Row(
       children: [
@@ -720,13 +815,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: theme.colorScheme.surfaceVariant,
-            borderRadius: BorderRadius.circular(8),
+            color: _surfaceVariant,
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(
             icon,
             size: 20,
-            color: theme.colorScheme.onSurfaceVariant,
+            color: _muted,
           ),
         ),
         const SizedBox(width: 16),
@@ -736,15 +831,18 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
             children: [
               Text(
                 label,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _muted,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 value,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: TextStyle(
+                  fontSize: 16,
                   fontWeight: FontWeight.w600,
+                  color: _foreground,
                 ),
               ),
             ],
@@ -758,22 +856,47 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
-        final dialogTheme = Theme.of(context);
         return AlertDialog(
-          title: const Text('确认删除'),
-          content: Text('确定要删除动作 "${exercise.name}" 吗？\n此操作不可撤销。'),
+          backgroundColor: _surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '确认删除',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: _foreground,
+            ),
+          ),
+          content: Text(
+            '确定要删除动作 "${exercise.name}" 吗？\n此操作不可撤销。',
+            style: TextStyle(
+              fontSize: 14,
+              color: _foreground,
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text('取消'),
+              child: Text(
+                '取消',
+                style: TextStyle(color: _muted),
+              ),
             ),
             FilledButton(
               onPressed: () => Navigator.pop(context, true),
               style: FilledButton.styleFrom(
-                backgroundColor: dialogTheme.colorScheme.error,
-                foregroundColor: dialogTheme.colorScheme.onError,
+                backgroundColor: _error,
+                foregroundColor: _foreground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
-              child: const Text('删除'),
+              child: Text(
+                '删除',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         );
@@ -793,25 +916,61 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('添加自定义动作'),
+          backgroundColor: _surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: Text(
+            '添加自定义动作',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: _foreground,
+            ),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _customNameController,
-                decoration: const InputDecoration(
+                style: TextStyle(color: _foreground),
+                decoration: InputDecoration(
                   labelText: '动作名称',
                   hintText: '例如：单臂哑铃划船',
+                  labelStyle: TextStyle(color: _muted),
+                  hintStyle: TextStyle(color: _muted),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _border),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _primary),
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: selectedTag,
-                hint: const Text('选择部位'),
+                hint: Text(
+                  '选择部位',
+                  style: TextStyle(color: _muted),
+                ),
+                style: TextStyle(color: _foreground),
+                dropdownColor: _surfaceVariant,
+                decoration: InputDecoration(
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _border),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _primary),
+                  ),
+                ),
                 items: ExerciseData.getAllTags().map((tag) {
                   return DropdownMenuItem(
                     value: tag,
-                    child: Text(ExerciseData.getTagDisplayName(tag)),
+                    child: Text(
+                      ExerciseData.getTagDisplayName(tag),
+                      style: TextStyle(color: _foreground),
+                    ),
                   );
                 }).toList(),
                 onChanged: (value) {
@@ -823,9 +982,18 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               const SizedBox(height: 16),
               TextField(
                 controller: _customTargetController,
-                decoration: const InputDecoration(
+                style: TextStyle(color: _foreground),
+                decoration: InputDecoration(
                   labelText: '关联部位',
                   hintText: '例如：胸肌、肩前束',
+                  labelStyle: TextStyle(color: _muted),
+                  hintStyle: TextStyle(color: _muted),
+                  enabledBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _border),
+                  ),
+                  focusedBorder: UnderlineInputBorder(
+                    borderSide: BorderSide(color: _primary),
+                  ),
                 ),
               ),
             ],
@@ -833,11 +1001,15 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('取消'),
+              child: Text(
+                '取消',
+                style: TextStyle(color: _muted),
+              ),
             ),
             FilledButton(
               onPressed: () {
-                if (_customNameController.text.isEmpty || selectedTag == null) {
+                if (_customNameController.text.isEmpty ||
+                    selectedTag == null) {
                   return;
                 }
                 final exercise = Exercise(
@@ -848,7 +1020,17 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 );
                 Navigator.pop(context, exercise);
               },
-              child: const Text('添加'),
+              style: FilledButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: _foreground,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: Text(
+                '添加',
+                style: TextStyle(fontWeight: FontWeight.w600),
+              ),
             ),
           ],
         ),
@@ -863,47 +1045,58 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     }
   }
 
-  Widget _buildEmptyState(ThemeData theme) {
+  Widget _buildEmptyState() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.search_off,
-              size: 48,
-              color: theme.colorScheme.onSurfaceVariant.withOpacity(0.5),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              '没有找到匹配的动作',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant,
+      child: FadeIn(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.search_off,
+                size: 48,
+                color: _muted.withOpacity(0.5),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '试试其他关键词或清除筛选条件',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurfaceVariant.withOpacity(0.7),
+              const SizedBox(height: 16),
+              Text(
+                '没有找到匹配的动作',
+                style: TextStyle(
+                  fontSize: 16,
+                  color: _muted,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            if (_selectedTag != null || _searchController.text.isNotEmpty)
-              TextButton.icon(
-                onPressed: () {
-                  setState(() {
-                    _selectedTag = null;
-                    _searchController.clear();
-                    _filterExercises();
-                  });
-                },
-                icon: const Icon(Icons.clear, size: 18),
-                label: const Text('清除筛选'),
+              const SizedBox(height: 8),
+              Text(
+                '试试其他关键词或清除筛选条件',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: _muted.withOpacity(0.7),
+                ),
               ),
-          ],
+              const SizedBox(height: 16),
+              if (_selectedTag != null || _searchController.text.isNotEmpty)
+                TextButton.icon(
+                  onPressed: () {
+                    setState(() {
+                      _selectedTag = null;
+                      _searchController.clear();
+                      _filterExercises();
+                    });
+                  },
+                  icon: Icon(
+                    Icons.clear,
+                    size: 18,
+                    color: _primary,
+                  ),
+                  label: Text(
+                    '清除筛选',
+                    style: TextStyle(color: _primary),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

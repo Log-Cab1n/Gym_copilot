@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
+import 'package:animate_do/animate_do.dart';
 
 import '../database/database_helper.dart';
 import '../models/workout_record.dart';
@@ -14,6 +15,23 @@ class StatsScreen extends StatefulWidget {
 }
 
 class _StatsScreenState extends State<StatsScreen> {
+  static const Color _backgroundColor = Color(0xFF0B0F19);
+  static const Color _cardColor = Color(0xFF1A1F2E);
+  static const Color _surfaceVariant = Color(0xFF242B3D);
+  static const Color _primaryColor = Color(0xFFF97316);
+  static const Color _textColor = Color(0xFFF8FAFC);
+  static const Color _mutedColor = Color(0xFF64748B);
+  static const Color _borderColor = Color(0xFF2D3748);
+  static const Color _accentColor = Color(0xFF22C55E);
+  static const List<Color> _chartColors = [
+    Color(0xFFF97316),
+    Color(0xFF22C55E),
+    Color(0xFF3B82F6),
+    Color(0xFF8B5CF6),
+    Color(0xFFF59E0B),
+    Color(0xFF06B6D4),
+  ];
+
   List<WorkoutRecord> _records = [];
   bool _isLoading = true;
 
@@ -75,32 +93,62 @@ class _StatsScreenState extends State<StatsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: _backgroundColor,
       appBar: AppBar(
-        title: const Text('数据统计'),
+        backgroundColor: _backgroundColor,
+        elevation: 0,
+        centerTitle: true,
+        title: Text(
+          '数据统计',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: _textColor,
+          ),
+        ),
+        iconTheme: const IconThemeData(color: _textColor),
       ),
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: _primaryColor),
+            )
           : RefreshIndicator(
               onRefresh: _loadData,
-              color: theme.colorScheme.primary,
-              backgroundColor: theme.colorScheme.surface,
+              color: _primaryColor,
+              backgroundColor: _cardColor,
               child: SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildSectionTitle('近7天训练时长', theme),
-                    _buildWeeklyChart(theme),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 400),
+                      child: _buildSectionTitle('近7天训练时长'),
+                    ),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 500),
+                      child: _buildWeeklyChart(),
+                    ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('部位分布', theme),
-                    _buildPieChart(theme),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 600),
+                      child: _buildSectionTitle('部位分布'),
+                    ),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 700),
+                      child: _buildPieChart(),
+                    ),
                     const SizedBox(height: 32),
-                    _buildSectionTitle('疲劳度趋势', theme),
-                    _buildFatigueChart(theme),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 800),
+                      child: _buildSectionTitle('疲劳度趋势'),
+                    ),
+                    FadeInUp(
+                      duration: const Duration(milliseconds: 900),
+                      child: _buildFatigueChart(),
+                    ),
                     const SizedBox(height: 32),
                   ],
                 ),
@@ -109,32 +157,37 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title, ThemeData theme) {
+  Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(
         title,
-        style: theme.textTheme.titleLarge?.copyWith(
+        style: TextStyle(
+          fontSize: 20,
           fontWeight: FontWeight.w600,
+          color: _textColor,
         ),
       ),
     );
   }
 
-  Widget _buildWeeklyChart(ThemeData theme) {
+  Widget _buildWeeklyChart() {
     final data = _weeklyDurationData;
     if (data.every((e) => e.value == 0)) {
-      return _buildEmptyChart('近7天暂无训练数据', theme);
+      return _buildEmptyChart('近7天暂无训练数据');
     }
 
     final maxValue =
         data.map((e) => e.value).reduce((a, b) => a > b ? a : b);
-    // 确保最小刻度范围，避免纵坐标显示重复数字
     final maxY = (maxValue < 5 ? 5.0 : maxValue * 1.2).toDouble();
-    // 计算合适的刻度间隔，确保为整数
     final interval = maxY / 4;
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _borderColor, width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: SizedBox(
@@ -146,7 +199,7 @@ class _StatsScreenState extends State<StatsScreen> {
                 drawVerticalLine: false,
                 horizontalInterval: interval,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: theme.colorScheme.outline.withOpacity(0.3),
+                  color: _borderColor.withOpacity(0.3),
                   strokeWidth: 1,
                 ),
               ),
@@ -157,13 +210,15 @@ class _StatsScreenState extends State<StatsScreen> {
                     reservedSize: 32,
                     interval: interval,
                     getTitlesWidget: (value, meta) {
-                      // 只显示整数刻度，避免重复
                       if (value != value.toInt().toDouble()) {
                         return const SizedBox();
                       }
                       return Text(
                         '${value.toInt()}',
-                        style: theme.textTheme.labelSmall,
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: _mutedColor,
+                        ),
                       );
                     },
                   ),
@@ -181,7 +236,10 @@ class _StatsScreenState extends State<StatsScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           data[index].key,
-                          style: theme.textTheme.labelSmall,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _mutedColor,
+                          ),
                         ),
                       );
                     },
@@ -205,22 +263,22 @@ class _StatsScreenState extends State<StatsScreen> {
                     return FlSpot(e.key.toDouble(), e.value.value.toDouble());
                   }).toList(),
                   isCurved: true,
-                  color: theme.colorScheme.primary,
+                  color: _primaryColor,
                   barWidth: 2,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, bar, index) {
                       return FlDotCirclePainter(
                         radius: 3,
-                        color: theme.colorScheme.primary,
+                        color: _primaryColor,
                         strokeWidth: 2,
-                        strokeColor: theme.colorScheme.surface,
+                        strokeColor: _cardColor,
                       );
                     },
                   ),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: theme.colorScheme.primary.withOpacity(0.05),
+                    color: _primaryColor.withOpacity(0.05),
                   ),
                 ),
               ],
@@ -231,24 +289,22 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildPieChart(ThemeData theme) {
+  Widget _buildPieChart() {
     final data = _bodyPartDistribution;
     if (data.isEmpty) {
-      return _buildEmptyChart('暂无部位分布数据', theme);
+      return _buildEmptyChart('暂无部位分布数据');
     }
 
-    final colors = {
-      'chest': const Color(0xFFFF8A65),
-      'back': const Color(0xFF4FC3F7),
-      'legs': const Color(0xFF81C784),
-      'shoulders': const Color(0xFFFFB74D),
-      'arms': const Color(0xFF9575CD),
-      'core': const Color(0xFF4DB6AC),
-    };
+    final colorKeys = data.keys.toList();
 
     final total = data.values.reduce((a, b) => a + b);
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _borderColor, width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -259,16 +315,19 @@ class _StatsScreenState extends State<StatsScreen> {
                 PieChartData(
                   sectionsSpace: 2,
                   centerSpaceRadius: 40,
-                  sections: data.entries.map((entry) {
+                  sections: data.entries.toList().asMap().entries.map((mapEntry) {
+                    final index = mapEntry.key;
+                    final entry = mapEntry.value;
                     final percentage =
                         (entry.value / total * 100).toStringAsFixed(1);
                     return PieChartSectionData(
-                      color: colors[entry.key] ?? theme.colorScheme.outline,
+                      color: _chartColors[index % _chartColors.length],
                       value: entry.value.toDouble(),
                       title: '$percentage%',
                       radius: 50,
-                      titleStyle: theme.textTheme.labelSmall?.copyWith(
-                        color: theme.colorScheme.onSurface,
+                      titleStyle: TextStyle(
+                        fontSize: 12,
+                        color: _textColor,
                         fontWeight: FontWeight.w600,
                       ),
                     );
@@ -280,7 +339,9 @@ class _StatsScreenState extends State<StatsScreen> {
             Wrap(
               spacing: 16,
               runSpacing: 8,
-              children: data.entries.map((entry) {
+              children: data.entries.toList().asMap().entries.map((mapEntry) {
+                final index = mapEntry.key;
+                final entry = mapEntry.value;
                 return Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -288,14 +349,17 @@ class _StatsScreenState extends State<StatsScreen> {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: colors[entry.key] ?? theme.colorScheme.outline,
+                        color: _chartColors[index % _chartColors.length],
                         shape: BoxShape.circle,
                       ),
                     ),
                     const SizedBox(width: 6),
                     Text(
                       '${ExerciseData.getTagDisplayName(entry.key)} (${entry.value}次)',
-                      style: theme.textTheme.bodySmall,
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: _textColor,
+                      ),
                     ),
                   ],
                 );
@@ -307,25 +371,30 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildFatigueChart(ThemeData theme) {
+  Widget _buildFatigueChart() {
     final data = _fatigueTrend;
     if (data.isEmpty) {
-      return _buildEmptyChart('暂无疲劳度数据', theme);
+      return _buildEmptyChart('暂无疲劳度数据');
     }
 
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _borderColor, width: 1),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            height: 200,
-            child: LineChart(
+        child: SizedBox(
+          height: 200,
+          child: LineChart(
             LineChartData(
               gridData: FlGridData(
                 show: true,
                 drawVerticalLine: false,
                 horizontalInterval: 2,
                 getDrawingHorizontalLine: (value) => FlLine(
-                  color: theme.colorScheme.outline.withOpacity(0.3),
+                  color: _borderColor.withOpacity(0.3),
                   strokeWidth: 1,
                 ),
               ),
@@ -337,7 +406,10 @@ class _StatsScreenState extends State<StatsScreen> {
                     interval: 2,
                     getTitlesWidget: (value, meta) => Text(
                       '${value.toInt()}',
-                      style: theme.textTheme.labelSmall,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: _mutedColor,
+                      ),
                     ),
                   ),
                 ),
@@ -354,7 +426,10 @@ class _StatsScreenState extends State<StatsScreen> {
                         padding: const EdgeInsets.only(top: 8),
                         child: Text(
                           data[index].key,
-                          style: theme.textTheme.labelSmall,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _mutedColor,
+                          ),
                         ),
                       );
                     },
@@ -378,22 +453,22 @@ class _StatsScreenState extends State<StatsScreen> {
                     return FlSpot(e.key.toDouble(), e.value.value);
                   }).toList(),
                   isCurved: true,
-                  color: theme.colorScheme.secondary,
+                  color: _accentColor,
                   barWidth: 2,
                   dotData: FlDotData(
                     show: true,
                     getDotPainter: (spot, percent, bar, index) {
                       return FlDotCirclePainter(
                         radius: 3,
-                        color: theme.colorScheme.secondary,
+                        color: _accentColor,
                         strokeWidth: 2,
-                        strokeColor: theme.colorScheme.surface,
+                        strokeColor: _cardColor,
                       );
                     },
                   ),
                   belowBarData: BarAreaData(
                     show: true,
-                    color: theme.colorScheme.secondary.withOpacity(0.05),
+                    color: _accentColor.withOpacity(0.05),
                   ),
                 ),
               ],
@@ -404,15 +479,21 @@ class _StatsScreenState extends State<StatsScreen> {
     );
   }
 
-  Widget _buildEmptyChart(String message, ThemeData theme) {
-    return Card(
+  Widget _buildEmptyChart(String message) {
+    return Container(
+      decoration: BoxDecoration(
+        color: _cardColor,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: _borderColor, width: 1),
+      ),
       child: SizedBox(
         height: 180,
         child: Center(
           child: Text(
             message,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+            style: TextStyle(
+              fontSize: 16,
+              color: _mutedColor,
             ),
           ),
         ),
