@@ -1,7 +1,0 @@
-{
-  "desc": "Gym Copilot - 你的健身助手",
-  "rules": [{
-    "action": "allow",
-    "page": "*"
-  }]
-}
