@@ -44,6 +44,31 @@ class ExerciseData {
           tag: 'chest',
           isBuiltIn: true,
           targetMuscles: '胸大肌（中缝）'),
+      Exercise(
+          name: '上斜杠铃卧推',
+          tag: 'chest',
+          isBuiltIn: true,
+          targetMuscles: '胸大肌（上束）、肩前束'),
+      Exercise(
+          name: '上斜哑铃卧推',
+          tag: 'chest',
+          isBuiltIn: true,
+          targetMuscles: '胸大肌（上束）、肩前束'),
+      Exercise(
+          name: '下斜卧推',
+          tag: 'chest',
+          isBuiltIn: true,
+          targetMuscles: '胸大肌（下束）'),
+      Exercise(
+          name: '绳索夹胸',
+          tag: 'chest',
+          isBuiltIn: true,
+          targetMuscles: '胸大肌（中缝）'),
+      Exercise(
+          name: '单臂哑铃卧推',
+          tag: 'chest',
+          isBuiltIn: true,
+          targetMuscles: '胸大肌、核心稳定性'),
       // 背
       Exercise(
           name: '引体向上',
@@ -85,6 +110,31 @@ class ExerciseData {
           tag: 'back',
           isBuiltIn: true,
           targetMuscles: '背阔肌、菱形肌、肱二头肌'),
+      Exercise(
+          name: '单臂哑铃划船',
+          tag: 'back',
+          isBuiltIn: true,
+          targetMuscles: '背阔肌、菱形肌'),
+      Exercise(
+          name: '反握高位下拉',
+          tag: 'back',
+          isBuiltIn: true,
+          targetMuscles: '背阔肌（下部）、肱二头肌'),
+      Exercise(
+          name: '坐姿绳索划船',
+          tag: 'back',
+          isBuiltIn: true,
+          targetMuscles: '背阔肌、菱形肌'),
+      Exercise(
+          name: '超人式',
+          tag: 'back',
+          isBuiltIn: true,
+          targetMuscles: '竖脊肌、臀大肌'),
+      Exercise(
+          name: '哑铃耸肩',
+          tag: 'back',
+          isBuiltIn: true,
+          targetMuscles: '斜方肌上部'),
       // 腿
       Exercise(
           name: '杠铃深蹲',
@@ -131,6 +181,31 @@ class ExerciseData {
           tag: 'legs',
           isBuiltIn: true,
           targetMuscles: '臀大肌、腘绳肌'),
+      Exercise(
+          name: '哈克深蹲',
+          tag: 'legs',
+          isBuiltIn: true,
+          targetMuscles: '股四头肌、臀大肌'),
+      Exercise(
+          name: '腿内收',
+          tag: 'legs',
+          isBuiltIn: true,
+          targetMuscles: '内收肌群'),
+      Exercise(
+          name: '腿外展',
+          tag: 'legs',
+          isBuiltIn: true,
+          targetMuscles: '臀中肌、臀小肌'),
+      Exercise(
+          name: '站姿提踵',
+          tag: 'legs',
+          isBuiltIn: true,
+          targetMuscles: '腓肠肌、比目鱼肌'),
+      Exercise(
+          name: '坐姿提踵',
+          tag: 'legs',
+          isBuiltIn: true,
+          targetMuscles: '比目鱼肌'),
       // 肩
       Exercise(
           name: '哑铃推举',
@@ -167,6 +242,31 @@ class ExerciseData {
           tag: 'shoulders',
           isBuiltIn: true,
           targetMuscles: '三角肌前束、中束、肱三头肌'),
+      Exercise(
+          name: '直立划船',
+          tag: 'shoulders',
+          isBuiltIn: true,
+          targetMuscles: '三角肌中束、斜方肌'),
+      Exercise(
+          name: '哑铃耸肩',
+          tag: 'shoulders',
+          isBuiltIn: true,
+          targetMuscles: '斜方肌上部'),
+      Exercise(
+          name: '器械推举',
+          tag: 'shoulders',
+          isBuiltIn: true,
+          targetMuscles: '三角肌前束、中束'),
+      Exercise(
+          name: '绳索面拉',
+          tag: 'shoulders',
+          isBuiltIn: true,
+          targetMuscles: '三角肌后束、菱形肌'),
+      Exercise(
+          name: '宽握直立划船',
+          tag: 'shoulders',
+          isBuiltIn: true,
+          targetMuscles: '三角肌中束'),
       // 臂
       Exercise(
           name: '杠铃弯举',
@@ -208,6 +308,31 @@ class ExerciseData {
           tag: 'arms',
           isBuiltIn: true,
           targetMuscles: '肱三头肌（长头）'),
+      Exercise(
+          name: '窄握卧推',
+          tag: 'arms',
+          isBuiltIn: true,
+          targetMuscles: '肱三头肌、胸大肌'),
+      Exercise(
+          name: '牧师凳弯举',
+          tag: 'arms',
+          isBuiltIn: true,
+          targetMuscles: '肱二头肌（短头）'),
+      Exercise(
+          name: '绳索弯举',
+          tag: 'arms',
+          isBuiltIn: true,
+          targetMuscles: '肱二头肌、肱肌'),
+      Exercise(
+          name: '仰卧臂屈伸',
+          tag: 'arms',
+          isBuiltIn: true,
+          targetMuscles: '肱三头肌'),
+      Exercise(
+          name: '三头肌绳索下压',
+          tag: 'arms',
+          isBuiltIn: true,
+          targetMuscles: '肱三头肌（三个头）'),
       // 腹
       Exercise(
           name: '卷腹',
@@ -249,6 +374,31 @@ class ExerciseData {
           tag: 'core',
           isBuiltIn: true,
           targetMuscles: '腹外斜肌、腹内斜肌'),
+      Exercise(
+          name: '仰卧举腿',
+          tag: 'core',
+          isBuiltIn: true,
+          targetMuscles: '腹直肌（下段）'),
+      Exercise(
+          name: '自行车卷腹',
+          tag: 'core',
+          isBuiltIn: true,
+          targetMuscles: '腹直肌、腹外斜肌'),
+      Exercise(
+          name: 'V字卷腹',
+          tag: 'core',
+          isBuiltIn: true,
+          targetMuscles: '腹直肌'),
+      Exercise(
+          name: '登山跑',
+          tag: 'core',
+          isBuiltIn: true,
+          targetMuscles: '核心肌群、髋屈肌'),
+      Exercise(
+          name: '交替摸肩平板支撑',
+          tag: 'core',
+          isBuiltIn: true,
+          targetMuscles: '核心稳定性、肩带稳定性'),
     ];
   }
 
