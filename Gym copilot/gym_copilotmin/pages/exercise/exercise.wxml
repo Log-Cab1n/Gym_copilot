@@ -1,0 +1,186 @@
+<wxs module="fmt" src="../../utils/format.wxs"></wxs>
+<view class="container">
+  <!-- 搜索框 -->
+  <view class="search-box">
+    <view class="search-input-wrapper">
+      <text class="search-icon">🔍</text>
+      <input
+        class="search-input"
+        placeholder="搜索动作"
+        placeholder-class="search-placeholder"
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+      />
+      <view class="search-clear" wx:if="{{searchText}}" bindtap="clearSearch">✕</view>
+    </view>
+  </view>
+
+  <!-- 部位筛选标签 -->
+  <scroll-view class="tag-filter-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="tag-filter">
+      <view
+        wx:for="{{tags}}"
+        wx:key="key"
+        class="tag-item {{selectedTag === item.key ? 'tag-active' : ''}}"
+        bindtap="selectTag"
+        data-tag="{{item.key}}"
+      >
+        {{item.name}}
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 动作列表 -->
+  <scroll-view class="exercise-list-scroll" scroll-y="true" refresher-enabled="true" bindrefresherrefresh="loadExercises">
+    <view class="exercise-list">
+      <view
+        wx:for="{{filteredExercises}}"
+        wx:key="id"
+        class="exercise-card"
+        bindtap="showExerciseDetail"
+        data-id="{{item.id}}"
+      >
+        <view class="exercise-card-inner">
+          <!-- 左侧图标 -->
+          <view class="exercise-icon">
+            <text class="exercise-icon-text">{{tagAbbreviations[item.tag]}}</text>
+          </view>
+          <!-- 中间信息 -->
+          <view class="exercise-info">
+            <text class="exercise-name">{{item.name}}</text>
+            <view class="exercise-meta">
+              <view class="meta-tag" wx:if="{{exerciseUsageStats[item.id].useCount > 0}}">
+                <text class="meta-icon">🏋️</text>
+                <text class="meta-text">{{exerciseUsageStats[item.id].useCount}} 次</text>
+              </view>
+            </view>
+          </view>
+          <!-- 右侧信息 -->
+          <view class="exercise-right">
+            <view class="meta-tag date-tag" wx:if="{{exerciseUsageStats[item.id].lastUsedDate}}">
+              <text class="meta-icon">📅</text>
+              <text class="meta-text">{{fmt.formatDate(exerciseUsageStats[item.id].lastUsedDate)}}</text>
+            </view>
+            <view class="delete-btn" wx:if="{{!item.isBuiltIn}}" catchtap="deleteExercise" data-id="{{item.id}}">
+              <text class="delete-icon">🗑️</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </scroll-view>
+
+  <!-- 添加按钮 -->
+  <view class="add-btn" bindtap="showAddModal">
+    <text class="add-btn-icon">+</text>
+  </view>
+</view>
+
+<!-- 动作详情底部弹窗 -->
+<view class="modal-mask {{showDetailModal ? 'modal-mask-show' : ''}}" wx:if="{{showDetailModal}}" bindtap="hideDetailModal"></view>
+<view class="bottom-sheet {{showDetailModal ? 'bottom-sheet-show' : ''}}" wx:if="{{showDetailModal}}">
+  <view class="sheet-handle"></view>
+  <view class="sheet-content">
+    <view class="sheet-header">
+      <view class="exercise-icon sheet-icon">
+        <text class="exercise-icon-text">{{tagAbbreviations[selectedExercise.tag]}}</text>
+      </view>
+      <view class="sheet-title-group">
+        <text class="sheet-title">{{selectedExercise.name}}</text>
+        <text class="sheet-subtitle">{{tagNames[selectedExercise.tag]}}</text>
+      </view>
+    </view>
+    <view class="sheet-divider"></view>
+    <view class="detail-rows">
+      <view class="detail-row">
+        <view class="detail-icon-box">🏋️</view>
+        <view class="detail-info">
+          <text class="detail-label">训练次数</text>
+          <text class="detail-value">{{selectedExerciseStats.useCount}} 次</text>
+        </view>
+      </view>
+      <view class="detail-row">
+        <view class="detail-icon-box">📅</view>
+        <view class="detail-info">
+          <text class="detail-label">上次训练</text>
+          <text class="detail-value">{{selectedExerciseStats.lastUsedDate ? fmt.formatDate(selectedExerciseStats.lastUsedDate) : '从未训练'}}</text>
+        </view>
+      </view>
+      <view class="detail-row">
+        <view class="detail-icon-box">📂</view>
+        <view class="detail-info">
+          <text class="detail-label">动作类型</text>
+          <text class="detail-value">{{selectedExercise.isBuiltIn ? '内置动作' : '自定义动作'}}</text>
+        </view>
+      </view>
+      <view class="detail-row">
+        <view class="detail-icon-box">💪</view>
+        <view class="detail-info">
+          <text class="detail-label">关联部位</text>
+          <text class="detail-value">{{selectedExercise.targetMuscles || '暂无'}}</text>
+        </view>
+      </view>
+    </view>
+    <view class="sheet-divider"></view>
+    <view class="sheet-actions">
+      <button class="btn-primary history-btn" bindtap="showExerciseHistory">查看历史记录</button>
+    </view>
+  </view>
+</view>
+
+<!-- 历史记录底部弹窗 -->
+<view class="modal-mask {{showHistoryModal ? 'modal-mask-show' : ''}}" wx:if="{{showHistoryModal}}" bindtap="hideHistoryModal"></view>
+<view class="bottom-sheet {{showHistoryModal ? 'bottom-sheet-show' : ''}}" wx:if="{{showHistoryModal}}">
+  <view class="sheet-handle"></view>
+  <view class="sheet-content">
+    <view class="sheet-header">
+      <view class="exercise-icon sheet-icon">
+        <text class="exercise-icon-text">{{tagAbbreviations[selectedExercise.tag]}}</text>
+      </view>
+      <view class="sheet-title-group">
+        <text class="sheet-title">{{selectedExercise.name}}</text>
+        <text class="sheet-subtitle">历史记录</text>
+      </view>
+    </view>
+    <view class="sheet-divider"></view>
+    <view class="history-list" wx:if="{{exerciseHistory.length > 0}}">
+      <view wx:for="{{exerciseHistory}}" wx:key="index" class="history-item">
+        <view class="history-set-number">{{item.setNumber}}</view>
+        <view class="history-info">
+          <text class="history-datetime">{{fmt.formatDateTime(item.dateTime)}}</text>
+          <text class="history-weight-reps">{{item.weight}}kg × {{item.reps}}次</text>
+        </view>
+        <view class="history-fatigue">疲劳{{item.fatigueLevel}}</view>
+      </view>
+    </view>
+    <view class="history-empty" wx:else>
+      <text class="history-empty-text">暂无历史记录</text>
+    </view>
+  </view>
+</view>
+
+<!-- 添加自定义动作弹窗 -->
+<view class="modal-mask {{showAddModal ? 'modal-mask-show' : ''}}" wx:if="{{showAddModal}}" bindtap="hideAddModal"></view>
+<view class="modal-popup {{showAddModal ? 'modal-popup-show' : ''}}" wx:if="{{showAddModal}}">
+  <view class="modal-header">
+    <text class="modal-title">添加自定义动作</text>
+    <view class="modal-close" bindtap="hideAddModal">✕</view>
+  </view>
+  <view class="modal-body">
+    <input class="modal-input" placeholder="动作名称" placeholder-class="input-placeholder" value="{{newExerciseName}}" bindinput="onNameInput" />
+    <view class="modal-section-title">选择部位</view>
+    <view class="tag-select">
+      <view
+        wx:for="{{tags}}"
+        wx:key="key"
+        class="tag-option {{newExerciseTag === item.key ? 'tag-option-active' : ''}}"
+        bindtap="selectNewTag"
+        data-tag="{{item.key}}"
+      >
+        {{item.name}}
+      </view>
+    </view>
+    <input class="modal-input" placeholder="关联部位（可选）" placeholder-class="input-placeholder" value="{{newExerciseMuscles}}" bindinput="onMusclesInput" />
+    <button class="btn-primary modal-btn" bindtap="addExercise">添加</button>
+  </view>
+</view>

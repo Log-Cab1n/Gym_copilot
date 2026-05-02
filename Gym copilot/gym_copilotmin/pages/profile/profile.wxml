@@ -1,0 +1,61 @@
+<view class="container">
+  <!-- 头部 -->
+  <view class="profile-header">
+    <view class="avatar">
+      <text class="avatar-icon">💪</text>
+    </view>
+    <text class="profile-name">健身达人</text>
+    <text class="profile-desc">已坚持训练 {{workoutDays}} 次</text>
+  </view>
+
+  <!-- 统计网格 -->
+  <view class="stats-grid">
+    <view class="stat-card">
+      <text class="stat-value">{{totalDuration}}</text>
+      <text class="stat-label">总训练时长(分钟)</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{totalSets}}</text>
+      <text class="stat-label">总组数</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{avgFatigue}}</text>
+      <text class="stat-label">平均疲劳度(/10)</text>
+    </view>
+    <view class="stat-card">
+      <text class="stat-value">{{topBodyPart}}</text>
+      <text class="stat-label">最常练部位</text>
+    </view>
+  </view>
+
+  <!-- 设置列表 -->
+  <view class="card">
+    <view class="nav-item" bindtap="navigateTo" data-url="/pages/personal_data/personal_data">
+      <text class="nav-text">个人数据</text>
+      <text class="nav-arrow">></text>
+    </view>
+    <view class="nav-item" bindtap="exportData">
+      <text class="nav-text">导出备份</text>
+      <text class="nav-arrow">></text>
+    </view>
+    <view class="nav-item" bindtap="importData">
+      <text class="nav-text">导入备份</text>
+      <text class="nav-arrow">></text>
+    </view>
+    <view class="nav-item" bindtap="showRestReminder">
+      <text class="nav-text">休息提醒</text>
+      <text class="nav-arrow">></text>
+    </view>
+    <view class="nav-item" bindtap="checkUpdate">
+      <text class="nav-text">检查更新</text>
+      <text class="nav-arrow">></text>
+    </view>
+    <view class="nav-item danger" bindtap="clearAllData">
+      <text class="nav-text" style="color: #CF6679;">删除所有记录</text>
+    </view>
+    <view class="nav-item" bindtap="showAbout">
+      <text class="nav-text">关于</text>
+      <text class="nav-arrow">></text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,140 @@
+<view class="container">
+  <view wx:if="{{templates.length === 0}}" class="empty-state">
+    <view class="empty-icon">📁</view>
+    <text class="empty-title">还没有训练模板</text>
+    <text class="empty-subtitle">点击右下角按钮创建新模板</text>
+  </view>
+
+  <view wx:for="{{templates}}" wx:key="id" class="template-card" bindtap="startFromTemplate" data-id="{{item.id}}">
+    <view class="template-header">
+      <view class="template-info">
+        <text class="template-name">{{item.name}}</text>
+        <text class="template-tag">部位: {{tagNames[item.bodyPart]}}</text>
+      </view>
+      <view class="delete-btn" catchtap="deleteTemplate" data-id="{{item.id}}">
+        <text class="delete-icon">×</text>
+      </view>
+    </view>
+
+    <view class="template-exercises">
+      <view wx:for="{{item._exercises}}" wx:key="exerciseId" wx:for-item="ex" class="exercise-row">
+        <text class="exercise-name">{{ex.exerciseName}}</text>
+        <text class="exercise-detail">{{ex.weight}}kg × {{ex.reps}}次 × {{ex.sets}}组</text>
+      </view>
+    </view>
+
+    <view class="template-footer">
+      <text class="template-date">创建时间: {{item._createdAtFormatted}}</text>
+    </view>
+  </view>
+
+  <view class="fab-btn" bindtap="showAdd">
+    <text class="fab-icon">+</text>
+    <text class="fab-text">新建模板</text>
+  </view>
+</view>
+
+<!-- 创建模板底部弹窗 -->
+<view class="modal-mask" wx:if="{{showAddModal}}" bindtap="hideAdd"></view>
+<view class="modal-popup" wx:if="{{showAddModal}}">
+  <view class="modal-header">
+    <text class="modal-title">新建训练模板</text>
+    <view class="modal-close" bindtap="hideAdd">✕</view>
+  </view>
+
+  <scroll-view scroll-y class="modal-body">
+    <input class="modal-input" placeholder="模板名称" value="{{templateName}}" bindinput="onNameInput" />
+
+    <text class="modal-label">选择训练部位</text>
+    <view class="body-part-row">
+      <view wx:for="{{bodyParts}}" wx:key="key" 
+            class="body-part-item {{selectedBodyPart === item.key ? 'body-part-active' : ''}}" 
+            bindtap="selectBodyPart" data-tag="{{item.key}}">
+        {{item.name}}
+      </view>
+    </view>
+
+    <view class="section-header" wx:if="{{selectedBodyPart}}">
+      <text class="modal-label">选择动作</text>
+      <text class="clear-btn" wx:if="{{templateExercises.length > 0}}" bindtap="clearAllExercises">清空</text>
+    </view>
+
+    <view wx:if="{{selectedBodyPart}}" class="exercise-list">
+      <view wx:for="{{availableExercises}}" wx:key="id" class="exercise-checkbox-item">
+        <checkbox-group bindchange="onExerciseCheckboxChange" data-id="{{item.id}}">
+          <label class="checkbox-label">
+            <checkbox value="{{item.id}}" checked="{{item._selected}}" />
+            <text class="checkbox-text">{{item.name}}</text>
+          </label>
+        </checkbox-group>
+      </view>
+    </view>
+
+    <view wx:if="{{selectedBodyPart && availableExercises.length === 0}}" class="empty-exercises">
+      <text>该部位暂无动作</text>
+    </view>
+
+    <view wx:if="{{templateExercises.length > 0}}" class="selected-tags">
+      <view wx:for="{{templateExercises}}" wx:key="exerciseId" class="selected-tag">
+        <text class="tag-name">{{item.exerciseName}}</text>
+        <text class="tag-detail">{{item.weight}}kg×{{item.reps}}次</text>
+        <view class="tag-edit" bindtap="editExerciseConfig" data-index="{{index}}">
+          <text class="tag-icon">✎</text>
+        </view>
+        <view class="tag-remove" bindtap="removeFromTemplate" data-index="{{index}}">
+          <text class="tag-icon">×</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="save-area">
+      <button class="btn-save {{templateExercises.length === 0 || !templateName || !selectedBodyPart ? 'btn-disabled' : ''}}" 
+              bindtap="saveTemplate" 
+              disabled="{{templateExercises.length === 0 || !templateName || !selectedBodyPart}}">
+        保存模板
+      </button>
+    </view>
+  </scroll-view>
+</view>
+
+<!-- 动作配置弹窗 -->
+<view class="modal-mask" wx:if="{{showConfigModal}}" bindtap="hideConfigModal"></view>
+<view class="config-popup" wx:if="{{showConfigModal}}">
+  <view class="config-header">
+    <text class="config-title">{{editingExerciseIndex >= 0 ? '编辑 ' : ''}}{{configExercise.name}}</text>
+    <view class="modal-close" bindtap="hideConfigModal">✕</view>
+  </view>
+
+  <view class="config-body">
+    <view class="config-row">
+      <view class="config-input-group">
+        <text class="config-label">重量</text>
+        <view class="config-input-wrap">
+          <input type="digit" class="config-input" placeholder="0" value="{{configWeight}}" bindinput="onConfigWeightInput" />
+          <text class="config-unit">kg</text>
+        </view>
+      </view>
+
+      <view class="config-input-group">
+        <text class="config-label">次数</text>
+        <view class="config-input-wrap">
+          <input type="number" class="config-input" placeholder="0" value="{{configReps}}" bindinput="onConfigRepsInput" />
+          <text class="config-unit">次</text>
+        </view>
+      </view>
+
+      <view class="config-input-group">
+        <text class="config-label">组数</text>
+        <view class="config-input-wrap">
+          <input type="number" class="config-input" placeholder="1" value="{{configSets}}" bindinput="onConfigSetsInput" />
+          <text class="config-unit">组</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="config-actions">
+      <button class="btn-cancel" bindtap="hideConfigModal">取消</button>
+      <button class="btn-confirm" bindtap="confirmConfig">{{editingExerciseIndex >= 0 ? '保存' : '确定'}}</button>
+    </view>
+  </view>
+</view>

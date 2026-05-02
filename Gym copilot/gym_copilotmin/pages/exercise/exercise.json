@@ -1,0 +1,7 @@
+{
+  "usingComponents": {},
+  "navigationBarTitleText": "动作库",
+  "navigationBarBackgroundColor": "#0B0F19",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": true
+}

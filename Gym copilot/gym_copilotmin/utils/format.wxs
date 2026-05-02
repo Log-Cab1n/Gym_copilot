@@ -1,0 +1,45 @@
+var formatDate = function(dateStr) {
+  if (!dateStr) return ''
+  var date = getDate(dateStr)
+  var month = (date.getMonth() + 1).toString()
+  var day = date.getDate().toString()
+  if (month.length < 2) month = '0' + month
+  if (day.length < 2) day = '0' + day
+  return month + '/' + day
+}
+
+var formatDateTime = function(dateTimeStr) {
+  if (!dateTimeStr) return ''
+  var date = getDate(dateTimeStr)
+  var year = date.getFullYear()
+  var month = (date.getMonth() + 1).toString()
+  var day = date.getDate().toString()
+  var hours = date.getHours().toString()
+  var minutes = date.getMinutes().toString()
+  if (month.length < 2) month = '0' + month
+  if (day.length < 2) day = '0' + day
+  if (hours.length < 2) hours = '0' + hours
+  if (minutes.length < 2) minutes = '0' + minutes
+  return year + '/' + month + '/' + day + ' ' + hours + ':' + minutes
+}
+
+var formatPlanDate = function(dateStr) {
+  if (!dateStr) return ''
+  var date = getDate(dateStr)
+  return (date.getMonth() + 1) + '/' + date.getDate()
+}
+
+var formatTime = function(minutes, seconds) {
+  var m = minutes.toString()
+  var s = seconds.toString()
+  if (m.length < 2) m = '0' + m
+  if (s.length < 2) s = '0' + s
+  return m + ':' + s
+}
+
+module.exports = {
+  formatDate: formatDate,
+  formatDateTime: formatDateTime,
+  formatPlanDate: formatPlanDate,
+  formatTime: formatTime
+}
